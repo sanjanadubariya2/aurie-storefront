@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root { color-scheme: light; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    @apply bg-ash text-ink font-sans antialiased;
+    font-feature-settings: 'ss01';
+  }
+
+  /* Fraunces is variable — dial the personality in rather than accept defaults */
+  .font-display {
+    font-variation-settings: 'SOFT' 20, 'WONK' 1;
+  }
+
+  ::selection { background: theme('colors.glow'); color: theme('colors.soot'); }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.ember');
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Rails scroll horizontally on touch without a visible scrollbar */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+@layer components {
+  .label {
+    @apply font-sans text-[11px] font-medium uppercase tracking-label text-smoke;
+  }
+
+  .rule {
+    @apply h-px w-full bg-wick;
+  }
+
+  /* The wax overlay used by the hero reveal. Its top edge is a drip profile. */
+  .wax-curtain {
+    background: linear-gradient(180deg, #FBFAF6 0%, #F2EFE7 100%);
+  }
+  .wax-curtain::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -22px;
+    height: 24px;
+    background: #FBFAF6;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 24' preserveAspectRatio='none'%3E%3Cpath d='M0 24V10c14 0 14-10 28-10s14 14 28 14 12-8 26-8 16 12 30 12 14-16 28-16 16 10 30 10 16-6 30-6 14 6 20 6v12z' fill='%23000'/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 24' preserveAspectRatio='none'%3E%3Cpath d='M0 24V10c14 0 14-10 28-10s14 14 28 14 12-8 26-8 16 12 30 12 14-16 28-16 16 10 30 10 16-6 30-6 14 6 20 6v12z' fill='%23000'/%3E%3C/svg%3E");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
