@@ -22,7 +22,13 @@ export default function PhoneVerify({ phone, onVerified, onBack }) {
       setChannel(res?.channel || 'sms')
       setSent(true)
       setCooldown(30)
-      toast(res?.channel === 'email' ? "SMS isn't set up yet — code sent to your email instead" : 'Code sent to your phone')
+      toast(
+        res?.channel === 'email'
+          ? "SMS isn't set up yet — code sent to your email instead"
+          : res?.channel === 'whatsapp'
+            ? 'Code sent on WhatsApp'
+            : 'Code sent to your phone',
+      )
     } catch (e) {
       setError(e.message)
     } finally {
@@ -68,6 +74,10 @@ export default function PhoneVerify({ phone, onVerified, onBack }) {
           <>
             SMS isn't set up yet, so the code for <span className="text-ink">+91 {phone}</span> went to your email
             instead.
+          </>
+        ) : channel === 'whatsapp' ? (
+          <>
+            We sent a code on WhatsApp to <span className="text-ink">+91 {phone}</span>.
           </>
         ) : (
           <>

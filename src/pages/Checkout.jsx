@@ -12,6 +12,9 @@ import { useCart } from '../context/CartContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import { placeOrder } from '../api/orders.js'
+import { createRazorpayOrder, verifyPayment } from '../api/payments.js'
+import { LIVE } from '../api/client.js'
+import { useRazorpay } from '../hooks/useRazorpay.js'
 import { validateAddress } from '../lib/validate.js'
 import { read, write } from '../lib/storage.js'
 
@@ -34,6 +37,7 @@ export default function Checkout() {
   const { customer, setAuthOpen } = useAuth()
   const { toast } = useToast()
   const navigate = useNavigate()
+  const openRazorpay = useRazorpay()
 
   const [step, setStep] = useState(0)
   const [address, setAddress] = useState(() => ({ ...blank, ...read(ADDRESS_KEY, {}) }))
@@ -93,16 +97,56 @@ export default function Checkout() {
     setStep(1)
   }
 
+  // Creates the Aurie order, opens Razorpay Checkout for it, then verifies the
+  // result server-side. The cart is only cleared once /payments/verify
+  // confirms — clearing on modal-open would lose it for anyone who backs out.
+  const payWithRazorpay = async () => {
+    const { razorpayOrderId, amount, currency, keyId, orderId } = await createRazorpayOrder({
+      items: lines,
+      address,
+    })
+
+    const result = await openRazorpay({
+      key: keyId,
+      amount,
+      currency,
+      order_id: razorpayOrderId,
+      name: 'Aurie',
+      description: `Order ${orderId}`,
+      prefill: { name: address.fullName, email: customer.email, contact: address.phone },
+      theme: { color: '#C1441E' },
+    })
+
+    const { order: verified } = await verifyPayment({
+      razorpayOrderId: result.razorpay_order_id,
+      razorpayPaymentId: result.razorpay_payment_id,
+      razorpaySignature: result.razorpay_signature,
+    })
+    empty()
+    setOrder(verified)
+  }
+
   const submit = async () => {
     setPlacing(true)
     try {
-      // With a live backend and UPI selected, this is where you create the
-      // Razorpay order and open its checkout before marking the order paid.
-      const created = await placeOrder({ items: lines, address, payment, total })
-      empty()
-      setOrder(created)
+      if (payment === 'upi' && LIVE) {
+        await payWithRazorpay()
+      } else {
+        // Cash on delivery — and UPI in demo mode, which has no real gateway
+        // to open — unchanged: one call, order placed immediately.
+        const created = await placeOrder({ items: lines, address, payment, total })
+        empty()
+        setOrder(created)
+      }
     } catch (e) {
-      toast(e.message, 'error')
+      // A closed widget is the customer changing their mind, not a failure —
+      // the order already exists server-side as pending, so they can just
+      // try again or switch to cash on delivery. A real failure gets the
+      // same "you're still on this step" behavior plus a sharper toast.
+      toast(
+        e.dismissed ? 'Payment cancelled. You can try again, or switch to cash on delivery below.' : e.message,
+        e.dismissed ? 'info' : 'error',
+      )
     } finally {
       setPlacing(false)
     }
