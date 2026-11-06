@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { read, write } from '../lib/storage.js'
 import { useSettings } from './ShopContext.jsx'
+import { useAuth } from './AuthContext.jsx'
+import { syncCart } from '../api/account.js'
 
 const CartContext = createContext(null)
 const KEY = 'aurie.cart'
@@ -14,6 +16,15 @@ export function CartProvider({ children }) {
   const { freeShippingFrom, shippingFee, maxPerLine } = useSettings()
   const [lines, setLines] = useState(() => read(KEY, []))
   const [cartOpen, setCartOpen] = useState(false)
+
+  // Signed-in carts are mirrored to the account (debounced) so a reminder can
+  // go out if one sits untouched for a day. Prices are never sent.
+  const { customer } = useAuth()
+  useEffect(() => {
+    if (!customer) return undefined
+    const t = setTimeout(() => syncCart(lines).catch(() => {}), 1500)
+    return () => clearTimeout(t)
+  }, [lines, customer])
 
   const linesRef = useRef(lines)
   useEffect(() => {

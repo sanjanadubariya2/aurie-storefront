@@ -1,7 +1,7 @@
 import { rupees } from '../../lib/format.js'
 import { longDate, estimateDelivery } from '../../lib/format.js'
 
-export default function OrderSummary({ lines, subtotal, shipping, giftWrapFee = 0, total, neededBy }) {
+export default function OrderSummary({ lines, subtotal, shipping, giftWrapFee = 0, discount = 0, couponCode, total, neededBy }) {
   return (
     <aside className="rounded-card border border-wick bg-wax p-5 sm:p-6 lg:sticky lg:top-24 lg:self-start">
       <h2 className="font-display text-[19px] text-soot">Your order</h2>
@@ -34,6 +34,12 @@ export default function OrderSummary({ lines, subtotal, shipping, giftWrapFee = 
           <dt className="text-smoke">Delivery</dt>
           <dd className="tabular-nums text-ink">{shipping === 0 ? 'Free' : rupees(shipping)}</dd>
         </div>
+        {discount > 0 && (
+          <div className="flex justify-between">
+            <dt className="text-smoke">Discount {couponCode && `(${couponCode})`}</dt>
+            <dd className="tabular-nums text-sea">− {rupees(discount)}</dd>
+          </div>
+        )}
         {giftWrapFee > 0 && (
           <div className="flex justify-between">
             <dt className="text-smoke">Gift wrap</dt>

@@ -9,8 +9,8 @@ import { LIVE, request, delay } from './client.js'
  * file never computes or sends an amount.
  */
 
-export async function createRazorpayOrder({ items, address, gift, neededBy }) {
-  if (LIVE) return request('/payments/order', { method: 'POST', body: { items, address, gift, neededBy } })
+export async function createRazorpayOrder({ items, address, gift, neededBy, couponCode }) {
+  if (LIVE) return request('/payments/order', { method: 'POST', body: { items, address, gift, neededBy, couponCode } })
   await delay(400)
   return {
     razorpayOrderId: `order_mock_${Date.now()}`,

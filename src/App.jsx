@@ -4,6 +4,8 @@ import { ToastProvider } from './context/ToastContext.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { ShopProvider } from './context/ShopContext.jsx'
 import { CartProvider } from './context/CartContext.jsx'
+import { WishlistProvider } from './context/WishlistContext.jsx'
+import Account from './pages/Account.jsx'
 import Layout from './components/layout/Layout.jsx'
 import Home from './pages/Home.jsx'
 import Shop from './pages/Shop.jsx'
@@ -31,6 +33,7 @@ export default function App() {
       <AuthProvider>
         <ShopProvider>
           <CartProvider>
+          <WishlistProvider>
             <ScrollToTop />
             <Routes>
               <Route element={<Layout />}>
@@ -41,12 +44,14 @@ export default function App() {
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/orders/:ref/invoice" element={<Invoice />} />
                 <Route path="/policies/:page" element={<Policy />} />
+                <Route path="/account" element={<Account />} />
                 <Route path="/quote" element={<QuoteRequest />} />
                 <Route path="/quotes" element={<QuoteList />} />
                 <Route path="/quotes/:id" element={<QuoteDetail />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
+          </WishlistProvider>
           </CartProvider>
         </ShopProvider>
       </AuthProvider>

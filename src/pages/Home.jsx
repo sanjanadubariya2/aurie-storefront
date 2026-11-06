@@ -4,6 +4,7 @@ import CollectionGrid from '../components/home/CollectionGrid.jsx'
 import SecretGlowFeature from '../components/home/SecretGlowFeature.jsx'
 import HowItWorks from '../components/home/HowItWorks.jsx'
 import Wholesale from '../components/home/Wholesale.jsx'
+import GiftFinder from '../components/home/GiftFinder.jsx'
 import Button from '../components/ui/Button.jsx'
 import { ProductCardSkeleton } from '../components/ui/Skeleton.jsx'
 import { useShop } from '../context/ShopContext.jsx'
@@ -46,6 +47,8 @@ export default function Home() {
       {rails.slice(0, 3).map((r) => (
         <CollectionRail key={r.collection.id} collection={r.collection} products={r.items} />
       ))}
+
+      <GiftFinder />
 
       <SecretGlowFeature />
 

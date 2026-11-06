@@ -96,6 +96,9 @@ export default function Header() {
                   role="menu"
                   className="absolute right-0 top-12 w-56 animate-fadeIn overflow-hidden rounded-2xl border border-wick bg-wax py-1.5 shadow-lift"
                 >
+                  <Link role="menuitem" to="/account" className="block px-4 py-2.5 text-[14px] text-ink hover:bg-ash">
+                    Account & wishlist
+                  </Link>
                   <Link role="menuitem" to="/orders" className="block px-4 py-2.5 text-[14px] text-ink hover:bg-ash">
                     Your orders
                   </Link>

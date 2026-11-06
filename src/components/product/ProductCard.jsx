@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { rupees } from '../../lib/format.js'
 import { useCart } from '../../context/CartContext.jsx'
 import TierPicker from './TierPicker.jsx'
+import Stars from '../ui/Stars.jsx'
+import { WishlistButton } from '../../context/WishlistContext.jsx'
 
 /** A catalogue card. The photo and name open the product page; sizes and
  *  "Add to cart" work right on the card so browsing never has to stop. */
@@ -41,6 +43,7 @@ export default function ProductCard({ product, priority = false }) {
             {product.badge}
           </span>
         )}
+        <WishlistButton product={product} className="absolute right-3 top-3 z-20" />
         {product.quote && (
           <span className="absolute bottom-3 left-3 z-20 rounded-full bg-soot/80 px-2.5 py-1 text-[11px] text-wax backdrop-blur-sm">
             Made to your brief
@@ -59,6 +62,11 @@ export default function ProductCard({ product, priority = false }) {
             {product.quote ? 'On ask' : rupees(tier?.price ?? 0)}
           </span>
         </div>
+        {product.rating?.count > 0 && (
+          <p className="mt-1 flex items-center gap-1.5 text-[12px] text-smoke">
+            <Stars value={product.rating.average} size="sm" /> {product.rating.average} ({product.rating.count})
+          </p>
+        )}
         {(product.scent || product.burn) && (
           <p className="mt-1 text-[13px] text-smoke">
             {[product.scent, product.burn && `${product.burn} burn`].filter(Boolean).join(' · ')}

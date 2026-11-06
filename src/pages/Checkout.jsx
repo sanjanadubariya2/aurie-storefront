@@ -17,6 +17,8 @@ import { createRazorpayOrder } from '../api/payments.js'
 import { LIVE } from '../api/client.js'
 import { useRazorpayCheckout } from '../hooks/useRazorpayCheckout.js'
 import GiftOptions from '../components/checkout/GiftOptions.jsx'
+import CouponField from '../components/checkout/CouponField.jsx'
+import { fetchAccount, saveAddresses } from '../api/account.js'
 import { validateAddress } from '../lib/validate.js'
 import { read, write } from '../lib/storage.js'
 
@@ -56,7 +58,31 @@ export default function Checkout() {
   const [gift, setGift] = useState({ wrap: false, note: '', hidePrices: false })
   const [neededBy, setNeededBy] = useState('')
   const giftWrapFee = gift.wrap ? settings.giftWrapFee || 0 : 0
-  const grandTotal = total + giftWrapFee
+  const [coupon, setCoupon] = useState(null) // { code, discount, description } — verified by the API
+  const discount = coupon?.discount || 0
+  const grandTotal = total - discount + giftWrapFee
+
+  // Saved addresses from the account, offered as one-tap choices.
+  const [saved, setSaved] = useState([])
+  useEffect(() => {
+    if (!customer || !LIVE) return
+    fetchAccount()
+      .then(({ addresses }) => {
+        setSaved(addresses || [])
+        const def = (addresses || []).find((a) => a.isDefault)
+        if (def && !read(ADDRESS_KEY, null)) setAddress({ ...blank, ...def })
+      })
+      .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customer])
+
+  // After a successful order, remember a new address on the account (max 5).
+  const rememberAddress = () => {
+    if (!LIVE || saved.length >= 5) return
+    const same = (a) => a.line1.trim().toLowerCase() === address.line1.trim().toLowerCase() && a.pincode === address.pincode
+    if (saved.some(same)) return
+    saveAddresses([...saved, { ...address, isDefault: saved.length === 0 }]).catch(() => {})
+  }
   const giftPayload = gift.wrap || gift.note.trim() || gift.hidePrices ? { ...gift, note: gift.note.trim() } : undefined
 
   useEffect(() => {
@@ -130,9 +156,10 @@ export default function Checkout() {
   // would lose it for anyone who backs out of the payment sheet.
   const payWithRazorpay = async () => {
     const verified = await payByUpi({
-      create: () => createRazorpayOrder({ items: lines, address, gift: giftPayload, neededBy: neededBy || undefined }),
+      create: () => createRazorpayOrder({ items: lines, address, gift: giftPayload, neededBy: neededBy || undefined, couponCode: coupon?.code }),
       prefill: { name: address.fullName, email: customer.email, contact: address.phone },
     })
+    rememberAddress()
     empty()
     setOrder(verified)
   }
@@ -145,7 +172,8 @@ export default function Checkout() {
       } else {
         // Cash on delivery — and UPI in demo mode, which has no real gateway
         // to open — unchanged: one call, order placed immediately.
-        const created = await placeOrder({ items: lines, address, payment, total: grandTotal, gift: giftPayload, neededBy: neededBy || undefined })
+        const created = await placeOrder({ items: lines, address, payment, total: grandTotal, gift: giftPayload, neededBy: neededBy || undefined, couponCode: coupon?.code })
+        rememberAddress()
         empty()
         setOrder(created)
       }
@@ -187,6 +215,29 @@ export default function Checkout() {
               <p className="mt-1.5 text-[15px] text-smoke">
                 Signed in as <span className="text-ink">{customer.email}</span>
               </p>
+              {saved.length > 0 && (
+                <div className="mt-5">
+                  <span className="label mb-2 block">Saved addresses</span>
+                  <div className="flex flex-wrap gap-2">
+                    {saved.map((a, i) => {
+                      const chosen = a.line1 === address.line1 && a.pincode === address.pincode
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setAddress({ ...blank, ...a })}
+                          className={`rounded-2xl border px-3.5 py-2 text-left text-[13px] transition-colors ${chosen ? 'border-soot bg-soot text-wax' : 'border-wick bg-wax text-ink hover:border-smoke'}`}
+                        >
+                          <span className="block font-medium">{a.fullName}</span>
+                          <span className={chosen ? 'text-wax/70' : 'text-smoke'}>
+                            {a.line1}, {a.city} {a.pincode}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
               <div className="mt-6">
                 <AddressForm value={address} errors={errors} onChange={setAddress} />
               </div>
@@ -199,6 +250,9 @@ export default function Checkout() {
 
           {step === 1 && (
             <>
+              <div className="mb-8 max-w-lg">
+                <CouponField lines={lines} applied={coupon} onApply={setCoupon} />
+              </div>
               <PaymentPicker value={payment} onChange={setPayment} total={grandTotal} />
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button onClick={submit} loading={placing} size="lg">
@@ -215,7 +269,7 @@ export default function Checkout() {
           )}
         </div>
 
-        <OrderSummary lines={lines} subtotal={subtotal} shipping={shipping} giftWrapFee={giftWrapFee} total={grandTotal} neededBy={neededBy} />
+        <OrderSummary lines={lines} subtotal={subtotal} shipping={shipping} giftWrapFee={giftWrapFee} discount={discount} couponCode={coupon?.code} total={grandTotal} neededBy={neededBy} />
       </div>
     </div>
   )

@@ -7,6 +7,8 @@ import OrderTimeline from '../components/orders/OrderTimeline.jsx'
 import { fetchOrders, statusCopy, cancelOrder } from '../api/orders.js'
 import Modal from '../components/ui/Modal.jsx'
 import { useToast } from '../context/ToastContext.jsx'
+import { useCart } from '../context/CartContext.jsx'
+import { useShop } from '../context/ShopContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
 import { rupees, shortDate, longDate, paymentLabel } from '../lib/format.js'
@@ -20,6 +22,22 @@ export default function Orders() {
   const [cancelling, setCancelling] = useState(null)
   const [busy, setBusy] = useState(false)
   const { toast } = useToast()
+  const { add, setCartOpen } = useCart()
+  const { productById } = useShop()
+
+  /** Adds everything still sold from an old order back to the cart at today's prices. */
+  const orderAgain = (order) => {
+    let added = 0
+    for (const l of order.items) {
+      const product = productById(l.productId)
+      const tier = product?.tiers?.find((t) => t.id === l.tierId)
+      if (!product || !tier || product.quote) continue
+      for (let i = 0; i < l.count; i++) add(product, tier, l.note || '')
+      added++
+    }
+    if (!added) toast('Those candles are no longer in the catalogue', 'error')
+    else setCartOpen(true)
+  }
 
   const confirmCancel = async () => {
     setBusy(true)
@@ -192,6 +210,11 @@ export default function Orders() {
                       {order.invoiceNumber && (
                         <Button as={Link} to={`/orders/${order.id}/invoice`} variant="outline" size="sm">
                           Invoice
+                        </Button>
+                      )}
+                      {order.status === 'delivered' && (
+                        <Button variant="outline" size="sm" onClick={() => orderAgain(order)}>
+                          Order again
                         </Button>
                       )}
                       {order.canCancel && (

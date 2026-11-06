@@ -7,6 +7,9 @@ import { Textarea } from '../components/ui/Field.jsx'
 import TierPicker from '../components/product/TierPicker.jsx'
 import ProductCard from '../components/product/ProductCard.jsx'
 import PincodeCheck from '../components/product/PincodeCheck.jsx'
+import ProductReviews from '../components/product/ProductReviews.jsx'
+import Stars from '../components/ui/Stars.jsx'
+import { WishlistButton } from '../context/WishlistContext.jsx'
 import { useShop } from '../context/ShopContext.jsx'
 import { useCart } from '../context/CartContext.jsx'
 import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
@@ -44,6 +47,9 @@ export default function Product() {
       image: product.image,
       description: product.blurb,
       brand: { '@type': 'Brand', name: BUSINESS.name },
+      ...(product.rating?.count && {
+        aggregateRating: { '@type': 'AggregateRating', ratingValue: product.rating.average, reviewCount: product.rating.count },
+      }),
       category: collection?.name,
       ...(prices.length && {
         offers: {
@@ -154,6 +160,7 @@ export default function Product() {
               height="900"
               className="aspect-square w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.03]"
             />
+            <WishlistButton product={product} className="absolute right-4 top-4 z-20 h-11 w-11" />
             {product.badge && (
               <span className="absolute left-4 top-4 z-20 rounded-full bg-wax/92 px-3 py-1.5 text-[12px] font-medium text-soot backdrop-blur-sm">
                 {product.badge}
@@ -165,6 +172,11 @@ export default function Product() {
         <div>
           {collection && <p className="label">{collection.name}</p>}
           <h1 className="mt-2 font-display text-[36px] leading-[1.05] text-soot sm:text-[46px]">{product.name}</h1>
+          {product.rating?.count > 0 && (
+            <a href="#reviews-title" className="mt-2 inline-flex items-center gap-2 text-[13px] text-smoke hover:text-soot">
+              <Stars value={product.rating.average} size="sm" /> {product.rating.average} · {product.rating.count} review{product.rating.count > 1 ? 's' : ''}
+            </a>
+          )}
 
           <p className="mt-4 font-display text-[26px] tabular-nums text-soot">
             {product.quote ? 'Priced on request' : rupees(tier?.price ?? 0)}
@@ -270,6 +282,8 @@ export default function Product() {
           </details>
         </div>
       </div>
+
+      <ProductReviews slug={product.id} />
 
       {related.length > 0 && (
         <section className="border-t border-wick py-14" aria-labelledby="related">

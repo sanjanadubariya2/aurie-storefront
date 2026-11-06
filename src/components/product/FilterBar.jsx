@@ -1,3 +1,5 @@
+import VoiceButton from '../ui/VoiceButton.jsx'
+
 export default function FilterBar({ collections, active, onChange, query, onQuery, sort, onSort, count }) {
   return (
     <div className="sticky top-16 z-30 -mx-5 border-b border-wick bg-ash/90 px-5 py-3 backdrop-blur-md sm:top-[72px] lg:-mx-8 lg:px-8">
@@ -33,6 +35,8 @@ export default function FilterBar({ collections, active, onChange, query, onQuer
               className="h-10 w-full rounded-full border border-wick bg-wax pl-9 pr-3 text-[14px] placeholder:text-smoke/60 focus:outline-none focus-visible:border-ember"
             />
           </div>
+
+          <VoiceButton onResult={(text) => onQuery(text.replace(/[.?!]$/, ''))} />
 
           <select
             value={sort}

@@ -28,9 +28,9 @@ export const STATUS_COPY = {
 export const statusCopy = (status) =>
   STATUS_COPY[status] || { title: String(status || 'Updated').replace(/_/g, ' '), body: '' }
 
-export async function placeOrder({ items, address, payment, total, gift, neededBy }) {
+export async function placeOrder({ items, address, payment, total, gift, neededBy, couponCode }) {
   if (LIVE) {
-    const { order } = await request('/orders', { method: 'POST', body: { items, address, payment, total, gift, neededBy } })
+    const { order } = await request('/orders', { method: 'POST', body: { items, address, payment, total, gift, neededBy, couponCode } })
     return order
   }
   await delay(900)

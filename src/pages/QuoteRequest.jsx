@@ -4,6 +4,7 @@ import Button from '../components/ui/Button.jsx'
 import Field, { Input, Textarea } from '../components/ui/Field.jsx'
 import Flame from '../components/ui/Flame.jsx'
 import SecretMessageField from '../components/quote/SecretMessageField.jsx'
+import PhotoMatch from '../components/quote/PhotoMatch.jsx'
 import { useShop } from '../context/ShopContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
@@ -190,6 +191,11 @@ export default function QuoteRequest() {
               <SecretMessageField value={form.message} onChange={(message) => setForm((f) => ({ ...f, message }))} occasion={form.occasion} />
             </div>
           )}
+
+          <PhotoMatch
+            onPhoto={(file) => setFiles((cur) => (cur.length < maxImages ? [...cur, file] : cur))}
+            onBrief={(brief) => setForm((f) => ({ ...f, details: f.details ? `${f.details}\n\n${brief}` : brief }))}
+          />
 
           <Field label="Describe it" id="details" error={errors.details} hint="Colours, scent, quantity, packaging, anything you have in mind">
             <Textarea
