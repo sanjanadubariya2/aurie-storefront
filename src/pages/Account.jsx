@@ -89,6 +89,10 @@ export default function Account() {
   )
 }
 
+// Items are re-fetched (new objects) when the session check finishes, so
+// compare by order + product, never by object identity.
+const keyOf = (i) => (i ? `${i.orderNumber}:${i.productId}` : '')
+
 function ReviewSection({ items, focus, onDone }) {
   const { toast } = useToast()
   const [open, setOpen] = useState(() => items.find((i) => i.orderNumber === focus) || items[0])
@@ -103,7 +107,7 @@ function ReviewSection({ items, focus, onDone }) {
       await postReview({ ...open, rating, text, photo })
       toast('Thank you — your review shows once we have read it')
       onDone(`${open.orderNumber}:${open.productId}`)
-      setOpen(items.find((i) => i !== open) || null)
+      setOpen(items.find((i) => keyOf(i) !== keyOf(open)) || null)
       setRating(0)
       setText('')
       setPhoto(null)
@@ -123,7 +127,7 @@ function ReviewSection({ items, focus, onDone }) {
           <li key={`${i.orderNumber}:${i.productId}`}>
             <button
               onClick={() => setOpen(i)}
-              className={`flex items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-[13px] ${open === i ? 'border-soot bg-soot text-wax' : 'border-wick text-ink'}`}
+              className={`flex items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-[13px] ${keyOf(open) === keyOf(i) ? 'border-soot bg-soot text-wax' : 'border-wick text-ink'}`}
             >
               {i.image && <img src={i.image} alt="" className="h-7 w-7 rounded-full object-cover" />}
               {i.name}
