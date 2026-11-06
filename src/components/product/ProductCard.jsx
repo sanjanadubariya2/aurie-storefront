@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { rupees } from '../../lib/format.js'
 import { useCart } from '../../context/CartContext.jsx'
-import { whatsappLink } from '../../content/business.js'
 import TierPicker from './TierPicker.jsx'
 
 /** A catalogue card. The photo and name open the product page; sizes and
@@ -74,14 +73,12 @@ export default function ProductCard({ product, priority = false }) {
 
         <div className="relative z-20 mt-auto pt-3.5">
           {product.quote ? (
-            <a
-              href={whatsappLink(`Hi Aurie, I'd like a quote for the ${product.name}.`)}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to={`/quote?product=${product.id}`}
               className="flex h-10 w-full items-center justify-center rounded-full border border-soot/25 text-[13px] text-soot transition-colors hover:border-soot hover:bg-soot hover:text-wax"
             >
-              Ask for a quote
-            </a>
+              Request a quote
+            </Link>
           ) : (
             <button
               onClick={addToCart}

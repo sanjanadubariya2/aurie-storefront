@@ -39,7 +39,7 @@ export default function SecretGlowFeature() {
               </ul>
 
               <div className="mt-9 flex flex-wrap gap-3">
-                <Button as={Link} to="/shop?c=secret" variant="primary">
+                <Button as={Link} to="/quote?product=custom-message" variant="primary">
                   Design one
                 </Button>
                 <span className="flex items-center text-[13px] text-wax/50">Priced after we agree on the wording</span>

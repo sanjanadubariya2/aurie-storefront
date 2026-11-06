@@ -33,6 +33,7 @@ export default function Footer() {
             <Link to="/shop?c=festive">Festive</Link>
             <Link to="/shop?c=secret">Secret Glow</Link>
             <Link to="/shop?c=luxe">Gift boxes</Link>
+            <Link to="/quote">Request a custom candle</Link>
             <Link to="/orders">Track an order</Link>
           </FooterList>
 

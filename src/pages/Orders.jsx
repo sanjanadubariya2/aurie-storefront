@@ -131,6 +131,15 @@ export default function Orders() {
                         }
                       />
                       <Detail term="Payment" value={paymentLabel(order)} />
+                      {order.neededBy && <Detail term="You need it by" value={longDate(order.neededBy)} />}
+                      {order.gift && (
+                        <Detail
+                          term="Gift"
+                          value={[order.gift.wrap && 'Gift wrapped', order.gift.hidePrices && 'no prices on slip', order.gift.note && `“${order.gift.note}”`]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        />
+                      )}
                     </dl>
 
                     <OrderTimeline status={order.status} />

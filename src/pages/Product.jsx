@@ -187,12 +187,15 @@ export default function Product() {
             <div className="mt-8 rounded-2xl bg-soot p-6 text-wax">
               <p className="font-display text-[20px]">Made to your brief</p>
               <p className="mt-2 text-[14px] leading-relaxed text-wax/75">
-                Tell us the occasion, the wording or colours you want, and a budget. We reply on WhatsApp with options
-                and a price, usually the same day.
+                Tell us the occasion, the wording or colours you want, and a budget. We reply with a price — usually
+                within a working day — and you pay online.
               </p>
-              <Button as="a" href={quoteLink} target="_blank" rel="noreferrer" size="block" className="mt-5">
-                Ask for a quote on WhatsApp
+              <Button as={Link} to={`/quote?product=${product.id}`} size="block" className="mt-5">
+                Request a quote
               </Button>
+              <a href={quoteLink} target="_blank" rel="noreferrer" className="mt-3 block text-center text-[13px] text-wax/60 underline underline-offset-4 hover:text-wax">
+                or ask on WhatsApp
+              </a>
             </div>
           ) : (
             <>

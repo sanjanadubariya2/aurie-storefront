@@ -11,6 +11,8 @@ import Product from './pages/Product.jsx'
 import Checkout from './pages/Checkout.jsx'
 import Orders from './pages/Orders.jsx'
 import Policy from './pages/Policy.jsx'
+import QuoteRequest from './pages/QuoteRequest.jsx'
+import { QuoteList, QuoteDetail } from './pages/Quotes.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 /** New page, new scroll position — except when only the ?query changes (shop filters). */
@@ -37,6 +39,9 @@ export default function App() {
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/policies/:page" element={<Policy />} />
+                <Route path="/quote" element={<QuoteRequest />} />
+                <Route path="/quotes" element={<QuoteList />} />
+                <Route path="/quotes/:id" element={<QuoteDetail />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>

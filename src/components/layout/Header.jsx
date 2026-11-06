@@ -99,6 +99,9 @@ export default function Header() {
                   <Link role="menuitem" to="/orders" className="block px-4 py-2.5 text-[14px] text-ink hover:bg-ash">
                     Your orders
                   </Link>
+                  <Link role="menuitem" to="/quotes" className="block px-4 py-2.5 text-[14px] text-ink hover:bg-ash">
+                    Custom requests
+                  </Link>
                   <Link role="menuitem" to="/policies/contact" className="block px-4 py-2.5 text-[14px] text-ink hover:bg-ash">
                     Help and contact
                   </Link>

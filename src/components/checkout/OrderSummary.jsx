@@ -1,9 +1,9 @@
 import { rupees } from '../../lib/format.js'
 import { longDate, estimateDelivery } from '../../lib/format.js'
 
-export default function OrderSummary({ lines, subtotal, shipping, total }) {
+export default function OrderSummary({ lines, subtotal, shipping, giftWrapFee = 0, total, neededBy }) {
   return (
-    <aside className="rounded-card border border-wick bg-wax p-5 sm:p-6">
+    <aside className="rounded-card border border-wick bg-wax p-5 sm:p-6 lg:sticky lg:top-24 lg:self-start">
       <h2 className="font-display text-[19px] text-soot">Your order</h2>
 
       <ul className="mt-4 divide-y divide-wick">
@@ -34,6 +34,12 @@ export default function OrderSummary({ lines, subtotal, shipping, total }) {
           <dt className="text-smoke">Delivery</dt>
           <dd className="tabular-nums text-ink">{shipping === 0 ? 'Free' : rupees(shipping)}</dd>
         </div>
+        {giftWrapFee > 0 && (
+          <div className="flex justify-between">
+            <dt className="text-smoke">Gift wrap</dt>
+            <dd className="tabular-nums text-ink">{rupees(giftWrapFee)}</dd>
+          </div>
+        )}
         <div className="flex items-baseline justify-between border-t border-wick pt-3">
           <dt className="font-display text-[17px] text-soot">Total</dt>
           <dd className="font-display text-[20px] tabular-nums text-soot">{rupees(total)}</dd>
@@ -41,7 +47,9 @@ export default function OrderSummary({ lines, subtotal, shipping, total }) {
       </dl>
 
       <p className="mt-4 rounded-xl bg-ash px-3.5 py-2.5 text-[13px] text-ink">
-        Expected by {longDate(estimateDelivery())}. Hand-poured, so this is an estimate, not a promise.
+        {neededBy
+          ? `You need it by ${longDate(neededBy)} — we will pour it in time.`
+          : `Expected by ${longDate(estimateDelivery())}. Hand-poured, so this is an estimate, not a promise.`}
       </p>
     </aside>
   )

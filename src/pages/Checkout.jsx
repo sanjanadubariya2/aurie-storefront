@@ -13,9 +13,10 @@ import { useToast } from '../context/ToastContext.jsx'
 import { placeOrder } from '../api/orders.js'
 import { useShop } from '../context/ShopContext.jsx'
 import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
-import { createRazorpayOrder, verifyPayment } from '../api/payments.js'
+import { createRazorpayOrder } from '../api/payments.js'
 import { LIVE } from '../api/client.js'
-import { useRazorpay } from '../hooks/useRazorpay.js'
+import { useRazorpayCheckout } from '../hooks/useRazorpayCheckout.js'
+import GiftOptions from '../components/checkout/GiftOptions.jsx'
 import { validateAddress } from '../lib/validate.js'
 import { read, write } from '../lib/storage.js'
 
@@ -41,8 +42,8 @@ export default function Checkout() {
   const { customer, setAuthOpen } = useAuth()
   const { toast } = useToast()
   const navigate = useNavigate()
-  const openRazorpay = useRazorpay()
-  const { products } = useShop()
+  const payByUpi = useRazorpayCheckout()
+  const { products, settings } = useShop()
   useDocumentMeta({ title: 'Checkout', path: '/checkout' })
 
   const [step, setStep] = useState(0)
@@ -51,6 +52,12 @@ export default function Checkout() {
   const [payment, setPayment] = useState('upi')
   const [placing, setPlacing] = useState(false)
   const [order, setOrder] = useState(null)
+  // Gift options and the occasion date — both optional.
+  const [gift, setGift] = useState({ wrap: false, note: '', hidePrices: false })
+  const [neededBy, setNeededBy] = useState('')
+  const giftWrapFee = gift.wrap ? settings.giftWrapFee || 0 : 0
+  const grandTotal = total + giftWrapFee
+  const giftPayload = gift.wrap || gift.note.trim() || gift.hidePrices ? { ...gift, note: gift.note.trim() } : undefined
 
   useEffect(() => {
     window.scrollTo({ top: 0 })
@@ -107,6 +114,8 @@ export default function Checkout() {
 
   const continueToVerify = () => {
     const found = validateAddress(address)
+    const earliest = new Date(Date.now() + settings.leadTimeDays * 86_400_000).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
+    if (neededBy && neededBy < earliest) found.neededBy = `That is too soon — allow at least ${settings.leadTimeDays} days`
     setErrors(found)
     if (Object.keys(found).length) {
       toast('Check the highlighted fields', 'error')
@@ -116,30 +125,13 @@ export default function Checkout() {
     setStep(1)
   }
 
-  // Creates the Aurie order, opens Razorpay Checkout for it, then verifies the
-  // result server-side. The cart is only cleared once /payments/verify
-  // confirms — clearing on modal-open would lose it for anyone who backs out.
+  // Creates the Aurie order, opens Razorpay, then verifies server-side. The
+  // cart is only cleared once /payments/verify confirms — clearing earlier
+  // would lose it for anyone who backs out of the payment sheet.
   const payWithRazorpay = async () => {
-    const { razorpayOrderId, amount, currency, keyId, orderId } = await createRazorpayOrder({
-      items: lines,
-      address,
-    })
-
-    const result = await openRazorpay({
-      key: keyId,
-      amount,
-      currency,
-      order_id: razorpayOrderId,
-      name: 'Aurie',
-      description: `Order ${orderId}`,
+    const verified = await payByUpi({
+      create: () => createRazorpayOrder({ items: lines, address, gift: giftPayload, neededBy: neededBy || undefined }),
       prefill: { name: address.fullName, email: customer.email, contact: address.phone },
-      theme: { color: '#C1441E' },
-    })
-
-    const { order: verified } = await verifyPayment({
-      razorpayOrderId: result.razorpay_order_id,
-      razorpayPaymentId: result.razorpay_payment_id,
-      razorpaySignature: result.razorpay_signature,
     })
     empty()
     setOrder(verified)
@@ -153,7 +145,7 @@ export default function Checkout() {
       } else {
         // Cash on delivery — and UPI in demo mode, which has no real gateway
         // to open — unchanged: one call, order placed immediately.
-        const created = await placeOrder({ items: lines, address, payment, total })
+        const created = await placeOrder({ items: lines, address, payment, total: grandTotal, gift: giftPayload, neededBy: neededBy || undefined })
         empty()
         setOrder(created)
       }
@@ -198,6 +190,7 @@ export default function Checkout() {
               <div className="mt-6">
                 <AddressForm value={address} errors={errors} onChange={setAddress} />
               </div>
+              <GiftOptions gift={gift} onGift={setGift} neededBy={neededBy} onNeededBy={setNeededBy} error={errors.neededBy} />
               <Button onClick={continueToVerify} size="lg" className="mt-8">
                 Continue
               </Button>
@@ -206,7 +199,7 @@ export default function Checkout() {
 
           {step === 1 && (
             <>
-              <PaymentPicker value={payment} onChange={setPayment} total={total} />
+              <PaymentPicker value={payment} onChange={setPayment} total={grandTotal} />
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button onClick={submit} loading={placing} size="lg">
                   {payment === 'upi' ? 'Pay and place order' : 'Place order'}
@@ -222,7 +215,7 @@ export default function Checkout() {
           )}
         </div>
 
-        <OrderSummary lines={lines} subtotal={subtotal} shipping={shipping} total={total} />
+        <OrderSummary lines={lines} subtotal={subtotal} shipping={shipping} giftWrapFee={giftWrapFee} total={grandTotal} neededBy={neededBy} />
       </div>
     </div>
   )
