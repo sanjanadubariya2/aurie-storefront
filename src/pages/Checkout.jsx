@@ -4,7 +4,6 @@ import Stepper from '../components/ui/Stepper.jsx'
 import Button from '../components/ui/Button.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
 import AddressForm from '../components/checkout/AddressForm.jsx'
-import PhoneVerify from '../components/checkout/PhoneVerify.jsx'
 import PaymentPicker from '../components/checkout/PaymentPicker.jsx'
 import OrderSummary from '../components/checkout/OrderSummary.jsx'
 import OrderPlaced from '../components/checkout/OrderPlaced.jsx'
@@ -12,13 +11,17 @@ import { useCart } from '../context/CartContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import { placeOrder } from '../api/orders.js'
+import { fetchProducts } from '../api/catalog.js'
 import { createRazorpayOrder, verifyPayment } from '../api/payments.js'
 import { LIVE } from '../api/client.js'
 import { useRazorpay } from '../hooks/useRazorpay.js'
 import { validateAddress } from '../lib/validate.js'
 import { read, write } from '../lib/storage.js'
 
-const STEPS = ['Delivery', 'Verify number', 'Payment']
+// Phone verification is off for now: without an SMS/WhatsApp provider the
+// code could only be emailed, which proves nothing about the phone number.
+// PhoneVerify.jsx and the /auth/phone routes are kept for when one is set up.
+const STEPS = ['Delivery', 'Payment']
 const ADDRESS_KEY = 'aurie.address'
 
 const blank = {
@@ -33,7 +36,7 @@ const blank = {
 }
 
 export default function Checkout() {
-  const { lines, subtotal, shipping, total, empty } = useCart()
+  const { lines, subtotal, shipping, total, empty, reconcile } = useCart()
   const { customer, setAuthOpen } = useAuth()
   const { toast } = useToast()
   const navigate = useNavigate()
@@ -49,6 +52,25 @@ export default function Checkout() {
   useEffect(() => {
     window.scrollTo({ top: 0 })
   }, [step])
+
+  // The cart lives in localStorage and can be days old. Re-check it against
+  // the live catalogue so prices shown here match what the server will charge,
+  // and anything since hidden or removed is taken out with a clear message.
+  useEffect(() => {
+    let cancelled = false
+    fetchProducts()
+      .then((products) => {
+        if (cancelled) return
+        const { removed, repriced } = reconcile(products)
+        if (removed.length) toast(`Removed from your cart (no longer available): ${removed.join(', ')}`, 'error')
+        else if (repriced.length) toast(`Prices updated for: ${repriced.join(', ')}`)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (!customer) {
     return (
@@ -186,10 +208,6 @@ export default function Checkout() {
           )}
 
           {step === 1 && (
-            <PhoneVerify phone={address.phone} onVerified={() => setStep(2)} onBack={() => setStep(0)} />
-          )}
-
-          {step === 2 && (
             <>
               <PaymentPicker value={payment} onChange={setPayment} total={total} />
               <div className="mt-8 flex flex-wrap items-center gap-3">

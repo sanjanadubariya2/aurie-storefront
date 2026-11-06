@@ -1,4 +1,5 @@
 import { rupees } from '../../lib/format.js'
+import { MAX_PER_LINE } from '../../context/CartContext.jsx'
 
 export default function CartLine({ line, onCount, onRemove }) {
   return (
@@ -21,7 +22,7 @@ export default function CartLine({ line, onCount, onRemove }) {
           <div className="flex items-center rounded-full border border-wick">
             <StepButton label={`Reduce ${line.name}`} onClick={() => onCount(line.count - 1)} d="M2 6h8" />
             <span className="w-8 text-center text-[13px] tabular-nums text-soot">{line.count}</span>
-            <StepButton label={`Add another ${line.name}`} onClick={() => onCount(line.count + 1)} d="M6 2v8M2 6h8" />
+            <StepButton label={`Add another ${line.name}`} onClick={() => onCount(line.count + 1)} disabled={line.count >= MAX_PER_LINE} d="M6 2v8M2 6h8" />
           </div>
           <button
             onClick={onRemove}
@@ -39,7 +40,7 @@ function StepButton({ label, d, ...props }) {
   return (
     <button
       aria-label={label}
-      className="grid h-8 w-8 place-items-center text-soot transition-colors hover:text-ember"
+      className="grid h-8 w-8 place-items-center text-soot transition-colors hover:text-ember disabled:opacity-30"
       {...props}
     >
       <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="1.5">

@@ -13,16 +13,26 @@ export default function Shop() {
   const [params, setParams] = useSearchParams()
   const [products, setProducts] = useState(null)
   const [collections, setCollections] = useState([])
+  const [error, setError] = useState('')
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState('featured')
   const [open, setOpen] = useState(null)
 
   const active = params.get('c') || 'all'
 
-  useEffect(() => {
-    fetchProducts().then(setProducts)
-    fetchCollections().then(setCollections)
-  }, [])
+  const load = () => {
+    setError('')
+    setProducts(null)
+    // Without the catch a failed request left the skeleton grid up forever.
+    Promise.all([fetchProducts(), fetchCollections()])
+      .then(([p, c]) => {
+        setProducts(p)
+        setCollections(c)
+      })
+      .catch((e) => setError(e.message))
+  }
+
+  useEffect(load, [])
 
   useEffect(() => {
     window.scrollTo({ top: 0 })
@@ -59,7 +69,11 @@ export default function Shop() {
           {heading ? heading.name : 'The whole catalogue'}
         </h1>
         <p className="mt-2 max-w-lg text-[15px] text-smoke">
-          {heading ? heading.note : 'Forty-three shapes across eight collections. Everything is poured after you order.'}
+          {heading
+            ? heading.note
+            : products
+              ? `${products.length} shapes across ${collections.length} collections. Everything is poured after you order.`
+              : 'Everything is poured after you order.'}
         </p>
       </header>
 
@@ -74,7 +88,17 @@ export default function Shop() {
         count={visible.length}
       />
 
-      {products === null ? (
+      {error ? (
+        <EmptyState
+          title="The catalogue did not load"
+          body={`${error} If this keeps happening, message us on WhatsApp and we will take your order there.`}
+          action={
+            <Button variant="outline" onClick={load}>
+              Try again
+            </Button>
+          }
+        />
+      ) : products === null ? (
         <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <ProductCardSkeleton key={i} />

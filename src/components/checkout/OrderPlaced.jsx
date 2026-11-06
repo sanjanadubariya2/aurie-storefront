@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import Button from '../ui/Button.jsx'
 import Flame from '../ui/Flame.jsx'
-import { rupees, longDate } from '../../lib/format.js'
+import { rupees, longDate, paymentLabel } from '../../lib/format.js'
 
 export default function OrderPlaced({ order }) {
   return (
@@ -16,7 +16,7 @@ export default function OrderPlaced({ order }) {
       <dl className="mt-8 divide-y divide-wick rounded-card border border-wick bg-wax text-left">
         <Row term="Order number" value={order.id} mono />
         <Row term="Total" value={rupees(order.total)} />
-        <Row term="Payment" value={order.payment === 'upi' ? 'Paid by UPI' : 'Cash on delivery'} />
+        <Row term="Payment" value={paymentLabel(order)} />
         <Row term="Expected by" value={longDate(order.expectedBy)} />
         <Row term="Delivering to" value={`${order.address.line1}, ${order.address.city} ${order.address.pincode}`} />
       </dl>

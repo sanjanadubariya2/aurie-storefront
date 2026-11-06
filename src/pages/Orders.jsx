@@ -4,21 +4,30 @@ import Button from '../components/ui/Button.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
 import Skeleton from '../components/ui/Skeleton.jsx'
 import OrderTimeline from '../components/orders/OrderTimeline.jsx'
-import { fetchOrders, STATUS_COPY } from '../api/orders.js'
+import { fetchOrders, statusCopy } from '../api/orders.js'
 import { useAuth } from '../context/AuthContext.jsx'
-import { rupees, shortDate, longDate } from '../lib/format.js'
+import { rupees, shortDate, longDate, paymentLabel } from '../lib/format.js'
 
 export default function Orders() {
   const { customer, setAuthOpen } = useAuth()
   const [orders, setOrders] = useState(null)
+  const [error, setError] = useState('')
   const [openId, setOpenId] = useState(null)
 
+  const load = () => {
+    setError('')
+    setOrders(null)
+    fetchOrders()
+      .then((list) => {
+        setOrders(list)
+        setOpenId(list[0]?.id ?? null)
+      })
+      .catch((e) => setError(e.message))
+  }
+
   useEffect(() => {
-    if (!customer) return
-    fetchOrders().then((list) => {
-      setOrders(list)
-      setOpenId(list[0]?.id ?? null)
-    })
+    if (customer) load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer])
 
   if (!customer) {
@@ -38,11 +47,21 @@ export default function Orders() {
       <header className="py-8 sm:py-10">
         <h1 className="font-display text-[34px] leading-tight text-soot sm:text-[42px]">Your orders</h1>
         <p className="mt-2 text-[15px] text-smoke">
-          Every status change also goes to {customer.email} and your phone.
+          Every status change is also emailed to {customer.email}.
         </p>
       </header>
 
-      {orders === null ? (
+      {error ? (
+        <EmptyState
+          title="Could not load your orders"
+          body={error}
+          action={
+            <Button variant="outline" onClick={load}>
+              Try again
+            </Button>
+          }
+        />
+      ) : orders === null ? (
         <div className="space-y-4">
           <Skeleton className="h-28 w-full rounded-card" />
           <Skeleton className="h-28 w-full rounded-card" />
@@ -80,7 +99,7 @@ export default function Orders() {
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="font-display text-[17px] text-soot">{STATUS_COPY[order.status].title}</p>
+                    <p className="font-display text-[17px] text-soot">{statusCopy(order.status).title}</p>
                     <p className="mt-0.5 text-[13px] text-smoke">
                       {order.id} · {shortDate(order.createdAt)} · {rupees(order.total)}
                     </p>
@@ -109,7 +128,7 @@ export default function Orders() {
                             : 'Added the day it ships'
                         }
                       />
-                      <Detail term="Payment" value={order.payment === 'upi' ? 'Paid by UPI' : 'Cash on delivery'} />
+                      <Detail term="Payment" value={paymentLabel(order)} />
                     </dl>
 
                     <OrderTimeline status={order.status} />

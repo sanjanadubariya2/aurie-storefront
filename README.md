@@ -52,30 +52,40 @@ Contracts are written at the top of each file in `src/api/`.
 | ------ | --------------------- | -------------------------- |
 | POST   | `/auth/email/otp`     | `{ sent }`                 |
 | POST   | `/auth/email/verify`  | `{ token, customer }`      |
-| POST   | `/auth/phone/otp`     | `{ sent }`                 |
-| POST   | `/auth/phone/verify`  | `{ verified }`             |
 | GET    | `/auth/me`            | `{ customer }`             |
 | GET    | `/products`           | `{ products }`             |
 | GET    | `/collections`        | `{ collections }`          |
-| POST   | `/orders`             | `{ order }`                |
-| GET    | `/orders`             | `{ orders }`               |
-| POST   | `/payments/upi`       | `{ razorpayOrderId, key }` |
+| POST   | `/orders`             | `{ order }` — cash on delivery only |
+| GET    | `/orders`             | `{ orders }` (unpaid UPI attempts excluded) |
+| POST   | `/payments/order`     | `{ razorpayOrderId, amount, currency, keyId, orderId }` |
+| POST   | `/payments/verify`    | `{ order }`                |
 
 `GET /products` should return exactly the shape in `src/data/products.js` — use
 that file as the seed script.
 
-## Wiring UPI
+## Checkout
 
-`Checkout.jsx` marks the spot. Create the Razorpay order server-side, return its
-id, open the Razorpay checkout, then `POST /orders` on success. The Razorpay key
-secret stays on the server; only the public key id comes to the browser.
+Two steps: delivery address, then payment. Sign-in is by email code only.
+Phone verification is switched off until an SMS/WhatsApp provider is set up —
+`components/checkout/PhoneVerify.jsx` and the API's `/auth/phone/*` routes are
+kept for that day.
+
+UPI: `POST /payments/order` creates the order as `awaiting_payment` plus a
+Razorpay order, the Razorpay popup takes the money, and `POST /payments/verify`
+(or Razorpay's webhook) moves it to `placed`. The cart is re-checked against the
+live catalogue when checkout opens, so stale prices or removed products never
+reach the server.
 
 ## Admin
 
-Not in this build. It is a separate route group (`/admin`) behind a role check —
-order table with status updates, product and price CRUD, and image upload. The
-`STATUS_FLOW` array in `src/api/orders.js` is what the admin status dropdown
-should be built from so the customer timeline stays in sync.
+A separate app: `../aurie-admin`. Keep `STATUS_FLOW` here identical to the one
+in `aurie-admin/src/api/endpoints.js` and `aurie-api/src/models/Order.js`.
+
+## Deploying on Vercel
+
+`vercel.json` rewrites every path to `index.html`, so links like `/shop?c=secret`
+and refreshing on `/orders` work instead of returning Vercel's 404. Set
+`VITE_API_URL` in the Vercel project and redeploy — it is baked in at build time.
 
 ## Notes
 
@@ -83,5 +93,6 @@ should be built from so the customer timeline stays in sync.
   Replace them with higher-resolution originals before launch, and add width and
   height attributes if you swap in a CDN.
 - Prices live in the data layer only. No component hardcodes a rupee figure.
-- Free delivery above ₹999 and the ₹2,000 cash-on-delivery ceiling are in
-  `CartContext.jsx` and `PaymentPicker.jsx` respectively.
+- Free delivery from ₹999 and the ₹2,000 cash-on-delivery ceiling are constants
+  at the top of `CartContext.jsx`. The API has the same numbers in
+  `lib/createOrder.js` and its total is the one charged — change both together.

@@ -1,6 +1,14 @@
 import { STATUS_FLOW, STATUS_COPY } from '../../api/orders.js'
 
 export default function OrderTimeline({ status }) {
+  if (status === 'cancelled') {
+    return (
+      <p className="mt-5 rounded-xl bg-ash px-3.5 py-2.5 text-[14px] text-ink">
+        <span className="font-medium">{STATUS_COPY.cancelled.title}.</span> {STATUS_COPY.cancelled.body}
+      </p>
+    )
+  }
+
   const current = Math.max(0, STATUS_FLOW.indexOf(status))
 
   return (

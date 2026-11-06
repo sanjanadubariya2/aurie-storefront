@@ -18,7 +18,7 @@ export default function AddressForm({ value, errors, onChange }) {
         label="Mobile number"
         id="phone"
         error={errors.phone}
-        hint="We verify this before the order is placed"
+        hint="The courier calls this number on delivery day"
         className="sm:col-span-2"
       >
         <div className="flex items-center gap-2">
