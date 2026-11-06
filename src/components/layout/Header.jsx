@@ -51,7 +51,7 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300
+      className={`sticky top-0 z-50 transition-all duration-300 print:hidden
         ${stuck || menuOpen ? 'border-b border-wick bg-ash/90 backdrop-blur-md' : 'border-b border-transparent bg-transparent'}`}
     >
       <div className="mx-auto flex h-16 max-w-[1240px] items-center gap-4 px-5 sm:h-[72px] lg:px-8">

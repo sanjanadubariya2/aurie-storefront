@@ -56,3 +56,19 @@ export async function fetchOrders() {
   await delay(400)
   return read(KEY, [])
 }
+
+/** POST /orders/:ref/cancel — only while the order is still "placed". Paid UPI is refunded automatically. */
+export async function cancelOrder(ref) {
+  if (LIVE) return (await request(`/orders/${encodeURIComponent(ref)}/cancel`, { method: 'POST' })).order
+  await delay(500)
+  const list = read(KEY, []).map((o) => (o.id === ref ? { ...o, status: 'cancelled' } : o))
+  write(KEY, list)
+  return list.find((o) => o.id === ref)
+}
+
+/** GET /shipping/serviceability?pincode= -> { live, available, codAvailable, transitDays, estimateDays } */
+export async function checkPincode(pincode) {
+  if (LIVE) return request(`/shipping/serviceability?pincode=${encodeURIComponent(pincode)}`)
+  await delay(400)
+  return { live: false, available: null, estimateDays: 7 }
+}

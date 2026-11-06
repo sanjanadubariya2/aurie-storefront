@@ -6,6 +6,7 @@ import Skeleton from '../components/ui/Skeleton.jsx'
 import { Textarea } from '../components/ui/Field.jsx'
 import TierPicker from '../components/product/TierPicker.jsx'
 import ProductCard from '../components/product/ProductCard.jsx'
+import PincodeCheck from '../components/product/PincodeCheck.jsx'
 import { useShop } from '../context/ShopContext.jsx'
 import { useCart } from '../context/CartContext.jsx'
 import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
@@ -227,6 +228,8 @@ export default function Product() {
               </div>
             </>
           )}
+
+          {!product.quote && <PincodeCheck />}
 
           <ul className="mt-8 grid gap-3 text-[14px] text-ink sm:grid-cols-2">
             <Assurance icon="flame">Poured after you order — expected by {longDate(estimateDelivery())}</Assurance>

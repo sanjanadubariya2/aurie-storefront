@@ -4,7 +4,9 @@ import Button from '../components/ui/Button.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
 import Skeleton from '../components/ui/Skeleton.jsx'
 import OrderTimeline from '../components/orders/OrderTimeline.jsx'
-import { fetchOrders, statusCopy } from '../api/orders.js'
+import { fetchOrders, statusCopy, cancelOrder } from '../api/orders.js'
+import Modal from '../components/ui/Modal.jsx'
+import { useToast } from '../context/ToastContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
 import { rupees, shortDate, longDate, paymentLabel } from '../lib/format.js'
@@ -15,6 +17,23 @@ export default function Orders() {
   const [orders, setOrders] = useState(null)
   const [error, setError] = useState('')
   const [openId, setOpenId] = useState(null)
+  const [cancelling, setCancelling] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const { toast } = useToast()
+
+  const confirmCancel = async () => {
+    setBusy(true)
+    try {
+      const updated = await cancelOrder(cancelling.id)
+      setOrders((list) => list.map((o) => (o.id === updated.id ? updated : o)))
+      toast(updated.paymentStatus === 'refunded' ? 'Cancelled — your refund is on its way (5–7 working days)' : 'Order cancelled')
+      setCancelling(null)
+    } catch (e) {
+      toast(e.message, 'error')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const load = () => {
     setError('')
@@ -162,6 +181,25 @@ export default function Orders() {
                       Delivering to {order.address.fullName}, {order.address.line1}, {order.address.city}{' '}
                       {order.address.pincode}
                     </p>
+
+                    {order.refundedTotal > 0 && (
+                      <p className="mt-3 rounded-xl bg-ash px-3.5 py-2.5 text-[13px] text-ink">
+                        {rupees(order.refundedTotal)} refunded to your UPI account — it can take 5–7 working days to show.
+                      </p>
+                    )}
+
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      {order.invoiceNumber && (
+                        <Button as={Link} to={`/orders/${order.id}/invoice`} variant="outline" size="sm">
+                          Invoice
+                        </Button>
+                      )}
+                      {order.canCancel && (
+                        <Button variant="ghost" size="sm" onClick={() => setCancelling(order)}>
+                          Cancel order
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 )}
               </li>
@@ -169,6 +207,25 @@ export default function Orders() {
           })}
         </ul>
       )}
+
+      <Modal open={Boolean(cancelling)} onClose={() => setCancelling(null)} title="Cancel order" size="sm">
+        <div className="p-7">
+          <h2 className="font-display text-[24px] text-soot">Cancel {cancelling?.id}?</h2>
+          <p className="mt-2 text-[15px] leading-relaxed text-smoke">
+            {cancelling?.payment === 'upi'
+              ? `We have not started pouring, so you get the full ${rupees(cancelling?.total || 0)} back to your UPI account in 5–7 working days.`
+              : 'We have not started pouring yet, so nothing is lost. This cannot be undone.'}
+          </p>
+          <div className="mt-6 flex gap-3">
+            <Button onClick={confirmCancel} loading={busy}>
+              Yes, cancel it
+            </Button>
+            <Button variant="ghost" onClick={() => setCancelling(null)}>
+              Keep my order
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

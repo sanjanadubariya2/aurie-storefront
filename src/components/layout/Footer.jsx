@@ -5,7 +5,7 @@ import { POLICY_LINKS } from '../../content/policies.jsx'
 
 export default function Footer() {
   return (
-    <footer className="mt-24 border-t border-wick bg-ash">
+    <footer className="mt-24 border-t border-wick bg-ash print:hidden">
       <div className="mx-auto max-w-[1240px] px-5 py-14 lg:px-8">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
           <div>
