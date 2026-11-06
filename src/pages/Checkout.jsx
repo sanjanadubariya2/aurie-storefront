@@ -73,7 +73,7 @@ export default function Checkout() {
         if (def && !read(ADDRESS_KEY, null)) setAddress({ ...blank, ...def })
       })
       .catch(() => {})
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [customer])
 
   // After a successful order, remember a new address on the account (max 5).
@@ -99,7 +99,7 @@ export default function Checkout() {
     const { removed, repriced } = reconcile(products)
     if (removed.length) toast(`Removed from your cart (no longer available): ${removed.join(', ')}`, 'error')
     else if (repriced.length) toast(`Prices updated for: ${repriced.join(', ')}`)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [products])
 
   if (!customer) {

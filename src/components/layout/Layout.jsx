@@ -1,10 +1,12 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
+import ErrorBoundary from '../ErrorBoundary.jsx'
 import Header from './Header.jsx'
 import Footer from './Footer.jsx'
 import CartDrawer from '../cart/CartDrawer.jsx'
 import AuthModal from '../auth/AuthModal.jsx'
 
 export default function Layout() {
+  const location = useLocation()
   return (
     <div className="flex min-h-screen flex-col">
       <a
@@ -15,7 +17,9 @@ export default function Layout() {
       </a>
       <Header />
       <main id="main" className="flex-1">
-        <Outlet />
+        <ErrorBoundary resetKey={location.pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </main>
       <Footer />
       <CartDrawer />

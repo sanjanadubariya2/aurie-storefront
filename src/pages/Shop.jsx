@@ -18,6 +18,7 @@ export default function Shop() {
   const [sort, setSort] = useState(params.get('sort') || 'featured')
 
   const active = params.get('c') || 'all'
+  const heading = collections.find((c) => c.id === active)
   useDocumentMeta({
     title: heading ? heading.name : 'Shop all candles',
     description: heading?.note,
@@ -29,7 +30,7 @@ export default function Shop() {
     query.trim() ? next.set('q', query.trim()) : next.delete('q')
     sort !== 'featured' ? next.set('sort', sort) : next.delete('sort')
     if (next.toString() !== params.toString()) setParams(next, { replace: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [query, sort])
 
   useEffect(() => {

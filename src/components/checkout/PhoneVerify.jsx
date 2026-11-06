@@ -38,7 +38,7 @@ export default function PhoneVerify({ phone, onVerified, onBack }) {
 
   useEffect(() => {
     send()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [])
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function PhoneVerify({ phone, onVerified, onBack }) {
 
   useEffect(() => {
     if (code.length === 6 && !busy) confirm(code)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [code])
 
   return (

@@ -66,7 +66,7 @@ export default function Orders() {
 
   useEffect(() => {
     if (customer) load()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [customer])
 
   if (!customer) {

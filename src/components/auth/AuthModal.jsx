@@ -69,7 +69,7 @@ export default function AuthModal() {
   // Submit the moment the sixth digit lands — nobody wants to press a button here.
   useEffect(() => {
     if (step === 'code' && code.length === 6 && !busy) confirmCode(code)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [code, step])
 
   return (
