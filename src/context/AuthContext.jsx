@@ -1,24 +1,30 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import * as authApi from '../api/auth.js'
-import { getToken } from '../api/client.js'
 import { read, write, clear } from '../lib/storage.js'
 
 const AuthContext = createContext(null)
 const KEY = 'aurie.customer'
 
 export function AuthProvider({ children }) {
-  const [customer, setCustomer] = useState(() => (getToken() ? read(KEY, null) : null))
+  // The cached profile paints the header instantly; /auth/me then confirms the
+  // cookie session is still valid and corrects it if not.
+  const [customer, setCustomer] = useState(() => read(KEY, null))
+  const [checked, setChecked] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
   const [afterAuth, setAfterAuth] = useState(null)
 
   useEffect(() => {
-    if (!getToken()) return
-    authApi.fetchMe().then((c) => {
-      if (c) {
+    authApi
+      .fetchMe()
+      .then((c) => {
         setCustomer(c)
-        write(KEY, c)
-      }
-    })
+        if (c) write(KEY, c)
+        else clear(KEY)
+      })
+      .catch(() => {
+        /* offline — keep the cached profile; requests will say so */
+      })
+      .finally(() => setChecked(true))
   }, [])
 
   const signIn = useCallback(
@@ -34,10 +40,10 @@ export function AuthProvider({ children }) {
     [afterAuth],
   )
 
-  const signOut = useCallback(() => {
-    authApi.signOut()
-    clear(KEY)
+  const signOut = useCallback(async () => {
     setCustomer(null)
+    clear(KEY)
+    await authApi.signOut()
   }, [])
 
   /** Run `action` if signed in, otherwise open the sign-in sheet and run it after. */
@@ -52,8 +58,8 @@ export function AuthProvider({ children }) {
   )
 
   const value = useMemo(
-    () => ({ customer, signIn, signOut, requireAuth, authOpen, setAuthOpen }),
-    [customer, signIn, signOut, requireAuth, authOpen],
+    () => ({ customer, checked, signIn, signOut, requireAuth, authOpen, setAuthOpen }),
+    [customer, checked, signIn, signOut, requireAuth, authOpen],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -39,6 +39,17 @@
     @apply h-px w-full bg-wick;
   }
 
+  /* Long-form text: policy pages and anything else that reads like a letter */
+  .prose-aurie {
+    @apply max-w-prose space-y-3 text-[15px] leading-relaxed text-ink;
+  }
+  .prose-aurie ul {
+    @apply list-disc space-y-1.5 pl-5 marker:text-wick;
+  }
+  .prose-aurie a {
+    @apply text-soot underline decoration-wick underline-offset-4 hover:decoration-ember;
+  }
+
   /* The wax overlay used by the hero reveal. Its top edge is a drip profile. */
   .wax-curtain {
     background: linear-gradient(180deg, #FBFAF6 0%, #F2EFE7 100%);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Stepper from '../components/ui/Stepper.jsx'
 import Button from '../components/ui/Button.jsx'
@@ -11,7 +11,8 @@ import { useCart } from '../context/CartContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import { placeOrder } from '../api/orders.js'
-import { fetchProducts } from '../api/catalog.js'
+import { useShop } from '../context/ShopContext.jsx'
+import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
 import { createRazorpayOrder, verifyPayment } from '../api/payments.js'
 import { LIVE } from '../api/client.js'
 import { useRazorpay } from '../hooks/useRazorpay.js'
@@ -41,6 +42,8 @@ export default function Checkout() {
   const { toast } = useToast()
   const navigate = useNavigate()
   const openRazorpay = useRazorpay()
+  const { products } = useShop()
+  useDocumentMeta({ title: 'Checkout', path: '/checkout' })
 
   const [step, setStep] = useState(0)
   const [address, setAddress] = useState(() => ({ ...blank, ...read(ADDRESS_KEY, {}) }))
@@ -56,21 +59,15 @@ export default function Checkout() {
   // The cart lives in localStorage and can be days old. Re-check it against
   // the live catalogue so prices shown here match what the server will charge,
   // and anything since hidden or removed is taken out with a clear message.
+  const reconciled = useRef(false)
   useEffect(() => {
-    let cancelled = false
-    fetchProducts()
-      .then((products) => {
-        if (cancelled) return
-        const { removed, repriced } = reconcile(products)
-        if (removed.length) toast(`Removed from your cart (no longer available): ${removed.join(', ')}`, 'error')
-        else if (repriced.length) toast(`Prices updated for: ${repriced.join(', ')}`)
-      })
-      .catch(() => {})
-    return () => {
-      cancelled = true
-    }
+    if (!products || reconciled.current) return
+    reconciled.current = true
+    const { removed, repriced } = reconcile(products)
+    if (removed.length) toast(`Removed from your cart (no longer available): ${removed.join(', ')}`, 'error')
+    else if (repriced.length) toast(`Prices updated for: ${repriced.join(', ')}`)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [products])
 
   if (!customer) {
     return (

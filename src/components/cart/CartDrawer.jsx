@@ -3,7 +3,8 @@ import Drawer from '../ui/Drawer.jsx'
 import Button from '../ui/Button.jsx'
 import EmptyState from '../ui/EmptyState.jsx'
 import CartLine from './CartLine.jsx'
-import { useCart, FREE_SHIPPING_FROM } from '../../context/CartContext.jsx'
+import { useCart } from '../../context/CartContext.jsx'
+import { useSettings } from '../../context/ShopContext.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { rupees } from '../../lib/format.js'
 
@@ -17,7 +18,8 @@ export default function CartDrawer() {
     requireAuth(() => navigate('/checkout'))
   }
 
-  const away = FREE_SHIPPING_FROM - subtotal
+  const { freeShippingFrom } = useSettings()
+  const away = freeShippingFrom - subtotal
 
   return (
     <Drawer

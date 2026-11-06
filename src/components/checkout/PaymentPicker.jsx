@@ -1,5 +1,5 @@
 import { rupees } from '../../lib/format.js'
-import { COD_LIMIT } from '../../context/CartContext.jsx'
+import { useSettings } from '../../context/ShopContext.jsx'
 
 const methods = [
   {
@@ -11,18 +11,19 @@ const methods = [
   {
     id: 'cod',
     name: 'Cash on delivery',
-    body: `Pay the courier when it arrives. Available on orders up to ${rupees(COD_LIMIT)}.`,
+    body: (limit) => `Pay the courier when it arrives. Available on orders up to ${rupees(limit)}.`,
   },
 ]
 
 export default function PaymentPicker({ value, onChange, total }) {
+  const { codLimit } = useSettings()
   return (
     <div className="max-w-lg">
       <h2 className="font-display text-[24px] leading-tight text-soot">How would you like to pay?</h2>
 
       <div className="mt-6 space-y-3" role="radiogroup" aria-label="Payment method">
         {methods.map((m) => {
-          const disabled = m.id === 'cod' && total > COD_LIMIT
+          const disabled = m.id === 'cod' && total > codLimit
           const active = value === m.id
           return (
             <button
@@ -49,7 +50,11 @@ export default function PaymentPicker({ value, onChange, total }) {
                   )}
                 </span>
                 <span className="mt-1 block text-[14px] leading-relaxed text-smoke">
-                  {disabled ? `Not available above ${rupees(COD_LIMIT)}. Pay by UPI instead.` : m.body}
+                  {disabled
+                    ? `Not available above ${rupees(codLimit)}. Pay by UPI instead.`
+                    : typeof m.body === 'function'
+                      ? m.body(codLimit)
+                      : m.body}
                 </span>
               </span>
             </button>

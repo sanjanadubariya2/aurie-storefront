@@ -2,37 +2,35 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import FilterBar from '../components/product/FilterBar.jsx'
 import ProductCard from '../components/product/ProductCard.jsx'
-import QuickView from '../components/product/QuickView.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
 import Button from '../components/ui/Button.jsx'
 import { ProductCardSkeleton } from '../components/ui/Skeleton.jsx'
-import { fetchProducts, fetchCollections } from '../api/catalog.js'
-import { startingPrice } from '../data/products.js'
+import { useShop } from '../context/ShopContext.jsx'
+import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
+
+const startingPrice = (p) => (p.tiers?.length ? Math.min(...p.tiers.map((t) => t.price)) : null)
 
 export default function Shop() {
   const [params, setParams] = useSearchParams()
-  const [products, setProducts] = useState(null)
-  const [collections, setCollections] = useState([])
-  const [error, setError] = useState('')
-  const [query, setQuery] = useState('')
-  const [sort, setSort] = useState('featured')
-  const [open, setOpen] = useState(null)
+  const { products, collections, error, reload: load } = useShop()
+  // Search text lives in the URL too, so a search can be shared or bookmarked.
+  const [query, setQuery] = useState(params.get('q') || '')
+  const [sort, setSort] = useState(params.get('sort') || 'featured')
 
   const active = params.get('c') || 'all'
+  useDocumentMeta({
+    title: heading ? heading.name : 'Shop all candles',
+    description: heading?.note,
+    path: active === 'all' ? '/shop' : `/shop?c=${active}`,
+  })
 
-  const load = () => {
-    setError('')
-    setProducts(null)
-    // Without the catch a failed request left the skeleton grid up forever.
-    Promise.all([fetchProducts(), fetchCollections()])
-      .then(([p, c]) => {
-        setProducts(p)
-        setCollections(c)
-      })
-      .catch((e) => setError(e.message))
-  }
-
-  useEffect(load, [])
+  useEffect(() => {
+    const next = new URLSearchParams(params)
+    query.trim() ? next.set('q', query.trim()) : next.delete('q')
+    sort !== 'featured' ? next.set('sort', sort) : next.delete('sort')
+    if (next.toString() !== params.toString()) setParams(next, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, sort])
 
   useEffect(() => {
     window.scrollTo({ top: 0 })
@@ -60,7 +58,6 @@ export default function Shop() {
     return list
   }, [products, active, query, sort])
 
-  const heading = collections.find((c) => c.id === active)
 
   return (
     <div className="mx-auto max-w-[1240px] px-5 pb-24 lg:px-8">
@@ -80,7 +77,11 @@ export default function Shop() {
       <FilterBar
         collections={collections}
         active={active}
-        onChange={(c) => setParams(c === 'all' ? {} : { c })}
+        onChange={(c) => {
+          const next = new URLSearchParams(params)
+          c === 'all' ? next.delete('c') : next.set('c', c)
+          setParams(next)
+        }}
         query={query}
         onQuery={setQuery}
         sort={sort}
@@ -113,6 +114,7 @@ export default function Shop() {
               variant="outline"
               onClick={() => {
                 setQuery('')
+                setSort('featured')
                 setParams({})
               }}
             >
@@ -123,12 +125,11 @@ export default function Shop() {
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
           {visible.map((p, i) => (
-            <ProductCard key={p.id} product={p} onOpen={setOpen} priority={i < 4} />
+            <ProductCard key={p.id} product={p} priority={i < 4} />
           ))}
         </div>
       )}
 
-      <QuickView product={open} onClose={() => setOpen(null)} />
     </div>
   )
 }

@@ -1,17 +1,19 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { rupees } from '../../lib/format.js'
 import { useCart } from '../../context/CartContext.jsx'
+import { whatsappLink } from '../../content/business.js'
 import TierPicker from './TierPicker.jsx'
 
-const WHATSAPP = import.meta.env.VITE_WHATSAPP || '919769469765'
-
-export default function ProductCard({ product, onOpen, priority = false }) {
+/** A catalogue card. The photo and name open the product page; sizes and
+ *  "Add to cart" work right on the card so browsing never has to stop. */
+export default function ProductCard({ product, priority = false }) {
   const { add } = useCart()
   const [tier, setTier] = useState(product.tiers?.[0] || null)
   const [justAdded, setJustAdded] = useState(false)
+  const href = `/p/${product.id}`
 
-  const addToCart = (e) => {
-    e.stopPropagation()
+  const addToCart = () => {
     add(product, tier)
     setJustAdded(true)
     setTimeout(() => setJustAdded(false), 1400)
@@ -19,11 +21,7 @@ export default function ProductCard({ product, onOpen, priority = false }) {
 
   return (
     <article className="group relative flex h-full flex-col">
-      <button
-        onClick={() => onOpen(product)}
-        className="relative block w-full overflow-hidden rounded-card bg-wax text-left"
-        aria-label={`View ${product.name}`}
-      >
+      <Link to={href} className="relative block overflow-hidden rounded-card bg-wax" aria-label={product.name}>
         {/* Lit state: warmth blooms behind the product on hover */}
         <span
           aria-hidden="true"
@@ -34,6 +32,9 @@ export default function ProductCard({ product, onOpen, priority = false }) {
           src={product.image}
           alt={product.name}
           loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          width="600"
+          height="600"
           className="aspect-square w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.045]"
         />
         {product.badge && (
@@ -41,30 +42,42 @@ export default function ProductCard({ product, onOpen, priority = false }) {
             {product.badge}
           </span>
         )}
-      </button>
+        {product.quote && (
+          <span className="absolute bottom-3 left-3 z-20 rounded-full bg-soot/80 px-2.5 py-1 text-[11px] text-wax backdrop-blur-sm">
+            Made to your brief
+          </span>
+        )}
+      </Link>
 
       <div className="flex flex-1 flex-col pt-3.5">
         <div className="flex items-baseline justify-between gap-3">
-          <h3 className="font-display text-[17px] leading-tight text-soot">{product.name}</h3>
+          <h3 className="font-display text-[17px] leading-tight text-soot">
+            <Link to={href} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none sm:after:hidden">
+              {product.name}
+            </Link>
+          </h3>
           <span className="shrink-0 font-display text-[16px] tabular-nums text-soot">
             {product.quote ? 'On ask' : rupees(tier?.price ?? 0)}
           </span>
         </div>
-        {product.scent && <p className="mt-1 text-[13px] text-smoke">{product.scent}</p>}
+        {(product.scent || product.burn) && (
+          <p className="mt-1 text-[13px] text-smoke">
+            {[product.scent, product.burn && `${product.burn} burn`].filter(Boolean).join(' · ')}
+          </p>
+        )}
 
         {product.tiers && (
-          <div className="mt-3">
+          <div className="relative z-20 mt-3">
             <TierPicker tiers={product.tiers} value={tier} onChange={setTier} size="sm" />
           </div>
         )}
 
-        <div className="mt-auto pt-3.5">
+        <div className="relative z-20 mt-auto pt-3.5">
           {product.quote ? (
             <a
-              href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hi Aurie, I'd like a quote for the ${product.name}.`)}`}
+              href={whatsappLink(`Hi Aurie, I'd like a quote for the ${product.name}.`)}
               target="_blank"
               rel="noreferrer"
-              onClick={(e) => e.stopPropagation()}
               className="flex h-10 w-full items-center justify-center rounded-full border border-soot/25 text-[13px] text-soot transition-colors hover:border-soot hover:bg-soot hover:text-wax"
             >
               Ask for a quote

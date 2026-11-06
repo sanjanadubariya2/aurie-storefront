@@ -1,7 +1,8 @@
 import { rupees } from '../../lib/format.js'
-import { MAX_PER_LINE } from '../../context/CartContext.jsx'
+import { useSettings } from '../../context/ShopContext.jsx'
 
 export default function CartLine({ line, onCount, onRemove }) {
+  const { maxPerLine } = useSettings()
   return (
     <li className="flex gap-3.5 py-4">
       <img src={line.image} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
@@ -22,7 +23,7 @@ export default function CartLine({ line, onCount, onRemove }) {
           <div className="flex items-center rounded-full border border-wick">
             <StepButton label={`Reduce ${line.name}`} onClick={() => onCount(line.count - 1)} d="M2 6h8" />
             <span className="w-8 text-center text-[13px] tabular-nums text-soot">{line.count}</span>
-            <StepButton label={`Add another ${line.name}`} onClick={() => onCount(line.count + 1)} disabled={line.count >= MAX_PER_LINE} d="M6 2v8M2 6h8" />
+            <StepButton label={`Add another ${line.name}`} onClick={() => onCount(line.count + 1)} disabled={line.count >= maxPerLine} d="M6 2v8M2 6h8" />
           </div>
           <button
             onClick={onRemove}

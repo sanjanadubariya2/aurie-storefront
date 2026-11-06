@@ -1,21 +1,17 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { read, write } from '../lib/storage.js'
+import { useSettings } from './ShopContext.jsx'
 
 const CartContext = createContext(null)
 const KEY = 'aurie.cart'
 
 const lineKey = (productId, tierId, note) => `${productId}::${tierId}::${note || ''}`
 
-/** Free delivery at or above this subtotal, otherwise a flat fee. COD has a
- *  ceiling. The server applies the same numbers (aurie-api lib/createOrder.js)
- *  and its total is the one charged — these only drive what the cart shows. */
-export const FREE_SHIPPING_FROM = 999
-export const SHIPPING_FEE = 79
-export const COD_LIMIT = 2000
-/** The API rejects more than this many of one line. */
-export const MAX_PER_LINE = 20
-
 export function CartProvider({ children }) {
+  // Delivery fee, free-delivery threshold and per-line cap come from the API
+  // (GET /settings). The server's total is the one charged — these only drive
+  // what the cart shows before checkout.
+  const { freeShippingFrom, shippingFee, maxPerLine } = useSettings()
   const [lines, setLines] = useState(() => read(KEY, []))
   const [cartOpen, setCartOpen] = useState(false)
 
@@ -29,7 +25,7 @@ export function CartProvider({ children }) {
     const key = lineKey(product.id, tier.id, note)
     setLines((list) => {
       const found = list.find((l) => l.key === key)
-      if (found) return list.map((l) => (l.key === key ? { ...l, count: Math.min(MAX_PER_LINE, l.count + 1) } : l))
+      if (found) return list.map((l) => (l.key === key ? { ...l, count: Math.min(maxPerLine, l.count + 1) } : l))
       return [
         ...list,
         {
@@ -46,15 +42,15 @@ export function CartProvider({ children }) {
       ]
     })
     setCartOpen(true)
-  }, [])
+  }, [maxPerLine])
 
   const setCount = useCallback((key, count) => {
     setLines((list) =>
       count <= 0
         ? list.filter((l) => l.key !== key)
-        : list.map((l) => (l.key === key ? { ...l, count: Math.min(MAX_PER_LINE, count) } : l)),
+        : list.map((l) => (l.key === key ? { ...l, count: Math.min(maxPerLine, count) } : l)),
     )
-  }, [])
+  }, [maxPerLine])
 
   /** Syncs saved lines with the live catalogue: drops products or sizes that
    *  no longer exist, refreshes name/image/price. Returns what changed. */
@@ -84,7 +80,7 @@ export function CartProvider({ children }) {
   const itemCount = useMemo(() => lines.reduce((sum, l) => sum + l.count, 0), [lines])
 
   /** Free over 999, otherwise a flat courier rate. */
-  const shipping = lines.length === 0 || subtotal >= FREE_SHIPPING_FROM ? 0 : SHIPPING_FEE
+  const shipping = lines.length === 0 || subtotal >= freeShippingFrom ? 0 : shippingFee
   const total = subtotal + shipping
 
   const value = useMemo(

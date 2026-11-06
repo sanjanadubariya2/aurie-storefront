@@ -81,11 +81,33 @@ reach the server.
 A separate app: `../aurie-admin`. Keep `STATUS_FLOW` here identical to the one
 in `aurie-admin/src/api/endpoints.js` and `aurie-api/src/models/Order.js`.
 
+## Pages
+
+`/` home · `/shop` (filters, search and sort live in the URL) · `/p/:slug` product
+page · `/checkout` · `/orders` · `/policies/{shipping,refunds,privacy,terms,contact}`.
+Business details for the policies and footer live in `src/content/business.js`
+— fill in the registered address before launch.
+
+## Sessions
+
+The API sets an httpOnly `aurie_session` cookie on sign-in; `src/api/client.js`
+sends `credentials: 'include'` and never sees a token. In production the API
+must be on the same site as the shop (`api.aurie.website`), or browsers will
+drop the cookie.
+
 ## Deploying on Vercel
 
 `vercel.json` rewrites every path to `index.html`, so links like `/shop?c=secret`
 and refreshing on `/orders` work instead of returning Vercel's 404. Set
 `VITE_API_URL` in the Vercel project and redeploy — it is baked in at build time.
+
+Two serverless functions live in `api/`:
+- `api/share.js` — link-preview HTML (title, photo, price) for WhatsApp,
+  Instagram and other crawlers that do not run JavaScript. `vercel.json` sends
+  only those user agents to it for `/p/:slug`.
+- `api/sitemap.js` — `/sitemap.xml`, built from the live catalogue.
+
+Both read `API_URL` (or `VITE_API_URL`) from the Vercel project's environment.
 
 ## Notes
 

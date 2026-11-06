@@ -1,35 +1,35 @@
-import { LIVE, request, delay, setToken } from './client.js'
+import { LIVE, request, delay } from './client.js'
 
 /**
  * Backend contract
- *   POST /auth/email/otp     { email }              -> { sent: true }
- *   POST /auth/email/verify  { email, code }        -> { token, customer }
- *   POST /auth/phone/otp     { phone }              -> { sent: true, channel: 'sms' | 'email' }
- *                             (channel is 'email' when no SMS provider is configured yet —
- *                              the code goes to the signed-in customer's email instead)
- *   POST /auth/phone/verify  { phone, code }        -> { verified: true }
- *   GET  /auth/me                                   -> { customer }
+ *   POST /auth/email/otp     { email }        -> { sent: true }
+ *   POST /auth/email/verify  { email, code }  -> { customer }   (+ sets the session cookie)
+ *   GET  /auth/me                             -> { customer }   (401 when signed out)
+ *   POST /auth/logout                         -> { ok }         (clears the cookie)
+ *   POST /auth/phone/otp|verify               kept for when an SMS provider exists
  *
  * In mock mode any 6-digit code is accepted except 000000, which fails so the
  * error state can be checked without a backend.
  */
 
+const MOCK_SESSION = 'aurie.mock.session'
+
 export async function sendEmailOtp(email) {
-  if (LIVE) return request('/auth/email/otp', { method: 'POST', body: { email }, auth: false })
+  if (LIVE) return request('/auth/email/otp', { method: 'POST', body: { email } })
   await delay()
   return { sent: true }
 }
 
 export async function verifyEmailOtp(email, code) {
   if (LIVE) {
-    const data = await request('/auth/email/verify', { method: 'POST', body: { email, code }, auth: false })
-    setToken(data.token)
+    const data = await request('/auth/email/verify', { method: 'POST', body: { email, code } })
     return data.customer
   }
   await delay()
   if (code === '000000') throw new Error('That code did not match. Ask for a new one.')
-  setToken('mock-token')
-  return { id: 'mock-customer', email, name: email.split('@')[0] }
+  const customer = { id: 'mock-customer', email, name: email.split('@')[0] }
+  window.localStorage.setItem(MOCK_SESSION, JSON.stringify(customer))
+  return customer
 }
 
 export async function sendPhoneOtp(phone) {
@@ -45,11 +45,27 @@ export async function verifyPhoneOtp(phone, code) {
   return { verified: true }
 }
 
+/** The signed-in customer, or null. Only throws on network errors. */
 export async function fetchMe() {
-  if (LIVE) return request('/auth/me').then((d) => d.customer)
-  return null
+  if (!LIVE) {
+    try {
+      return JSON.parse(window.localStorage.getItem(MOCK_SESSION)) || null
+    } catch {
+      return null
+    }
+  }
+  try {
+    return (await request('/auth/me')).customer
+  } catch (err) {
+    if (err.status === 401) return null
+    throw err
+  }
 }
 
-export function signOut() {
-  setToken(null)
+export async function signOut() {
+  if (!LIVE) {
+    window.localStorage.removeItem(MOCK_SESSION)
+    return
+  }
+  await request('/auth/logout', { method: 'POST' }).catch(() => {})
 }

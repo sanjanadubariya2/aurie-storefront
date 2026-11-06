@@ -6,10 +6,12 @@ import Skeleton from '../components/ui/Skeleton.jsx'
 import OrderTimeline from '../components/orders/OrderTimeline.jsx'
 import { fetchOrders, statusCopy } from '../api/orders.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
 import { rupees, shortDate, longDate, paymentLabel } from '../lib/format.js'
 
 export default function Orders() {
   const { customer, setAuthOpen } = useAuth()
+  useDocumentMeta({ title: 'Your orders', path: '/orders' })
   const [orders, setOrders] = useState(null)
   const [error, setError] = useState('')
   const [openId, setOpenId] = useState(null)
