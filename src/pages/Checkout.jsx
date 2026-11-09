@@ -105,7 +105,7 @@ export default function Checkout() {
   if (!customer) {
     return (
       <div className="mx-auto max-w-[1240px] px-5 lg:px-8">
-        <EmptyState
+        <EmptyState level={1}
           title="Sign in to check out"
           body="We need a verified email so we can send your order confirmation and tracking updates."
           action={<Button onClick={() => setAuthOpen(true)}>Sign in</Button>}
@@ -125,7 +125,7 @@ export default function Checkout() {
   if (lines.length === 0) {
     return (
       <div className="mx-auto max-w-[1240px] px-5 lg:px-8">
-        <EmptyState
+        <EmptyState level={1}
           title="Your cart is empty"
           body="Add something to it and the checkout will open up."
           action={

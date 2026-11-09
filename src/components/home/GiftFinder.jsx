@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { atWidth } from '../../lib/images.js'
 import { Link } from 'react-router-dom'
 import Button from '../ui/Button.jsx'
 import VoiceButton from '../ui/VoiceButton.jsx'
@@ -101,7 +102,7 @@ export default function GiftFinder() {
                         return (
                           <li key={id}>
                             <Link to={`/p/${id}`} className="flex gap-3 rounded-2xl border border-wick bg-ash/30 p-3 transition-colors hover:border-soot">
-                              <img src={product.image} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
+                              <img src={atWidth(product.image, 160)} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
                               <span className="min-w-0">
                                 <span className="block font-display text-[16px] text-soot">{product.name}</span>
                                 <span className="block text-[12px] text-smoke">{product.quote ? 'Priced on request' : `From ${rupees(from)}`}</span>

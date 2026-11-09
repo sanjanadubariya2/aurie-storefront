@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { BUSINESS } from '../content/business.js'
 
 const HOME_TITLE = 'Aurie | Sculptural Candles Made to Order in Mumbai'
-const DEFAULT_IMAGE = `${BUSINESS.siteUrl}/products/cover.jpg`
+const DEFAULT_IMAGE = `${BUSINESS.siteUrl}/images/lit-pillar-and-tealight-candles-with-pampas-share.jpg`
 
 function setMeta(attr, key, content) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`)

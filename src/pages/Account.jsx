@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { atWidth } from '../lib/images.js'
 import { Link, useSearchParams } from 'react-router-dom'
 import Button from '../components/ui/Button.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
@@ -40,7 +41,7 @@ export default function Account() {
   if (!customer) {
     return (
       <div className="mx-auto max-w-[900px] px-5">
-        <EmptyState title="Sign in to your account" body="Addresses, wishlist and reviews live here." action={<Button onClick={() => setAuthOpen(true)}>Sign in</Button>} />
+        <EmptyState level={1} title="Sign in to your account" body="Addresses, wishlist and reviews live here." action={<Button onClick={() => setAuthOpen(true)}>Sign in</Button>} />
       </div>
     )
   }
@@ -129,7 +130,7 @@ function ReviewSection({ items, focus, onDone }) {
               onClick={() => setOpen(i)}
               className={`flex items-center gap-2 rounded-full border py-1 pl-1 pr-3 text-[13px] ${keyOf(open) === keyOf(i) ? 'border-soot bg-soot text-wax' : 'border-wick text-ink'}`}
             >
-              {i.image && <img src={i.image} alt="" className="h-7 w-7 rounded-full object-cover" />}
+              {i.image && <img src={atWidth(i.image, 160)} alt="" className="h-7 w-7 rounded-full object-cover" />}
               {i.name}
             </button>
           </li>

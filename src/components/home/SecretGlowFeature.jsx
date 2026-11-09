@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import Button from '../ui/Button.jsx'
 import { useReveal } from '../../hooks/useReveal.js'
+import Picture from '../ui/Picture.jsx'
 
 export default function SecretGlowFeature() {
   const [ref, shown] = useReveal()
@@ -47,9 +48,13 @@ export default function SecretGlowFeature() {
             </div>
 
             <div className="relative min-h-[280px] lg:min-h-0">
-              <img
-                src="/products/love-note.jpg"
-                alt="Two jar candles with letter beads spelling a message set into the wax"
+              <Picture
+                name="secret-message-letter-bead-jar-candles"
+                widths={[360, 512]}
+                width={512}
+                height={512}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                alt="Two Secret Glow jar candles with white letter beads spelling a hidden message in the wax"
                 className="h-full w-full object-cover"
               />
               <div

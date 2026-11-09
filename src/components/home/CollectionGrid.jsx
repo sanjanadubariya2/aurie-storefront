@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import SectionHead from '../ui/SectionHead.jsx'
 import { useReveal } from '../../hooks/useReveal.js'
+import { srcSet, SIZES } from '../../lib/images.js'
 
 /** "Shop by collection" — one photo tile per collection, so the whole range is
  *  visible in one screen instead of eight scrolls down the page. */
@@ -33,7 +34,11 @@ export default function CollectionGrid({ collections, products }) {
               >
                 <img
                   src={c.cover.image}
-                  alt=""
+                  srcSet={srcSet(c.cover.image, [320, 480, 640])}
+                  sizes={SIZES.tile}
+                  alt={`${c.cover.name} candle from the Aurie ${c.name} collection`}
+                  width="640"
+                  height="768"
                   loading="lazy"
                   decoding="async"
                   className="h-full w-full object-cover opacity-90 transition-transform duration-700 ease-out group-hover:scale-[1.05]"

@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom'
 import { rupees } from '../../lib/format.js'
 import { useCart } from '../../context/CartContext.jsx'
 import TierPicker from './TierPicker.jsx'
+import { useShop } from '../../context/ShopContext.jsx'
+import { srcSet, productAlt, SIZES } from '../../lib/images.js'
 import Stars from '../ui/Stars.jsx'
 import { WishlistButton } from '../../context/WishlistContext.jsx'
 
 /** A catalogue card. The photo and name open the product page; sizes and
  *  "Add to cart" work right on the card so browsing never has to stop. */
-export default function ProductCard({ product, priority = false }) {
+export default function ProductCard({ product, priority = false, sizes = SIZES.card }) {
+  const { collectionById } = useShop()
   const { add } = useCart()
   const [tier, setTier] = useState(product.tiers?.[0] || null)
   const [justAdded, setJustAdded] = useState(false)
@@ -31,7 +34,9 @@ export default function ProductCard({ product, priority = false }) {
         />
         <img
           src={product.image}
-          alt={product.name}
+          srcSet={srcSet(product.image)}
+          sizes={sizes}
+          alt={productAlt(product, collectionById(product.collection))}
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
           width="600"

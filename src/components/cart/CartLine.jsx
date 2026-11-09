@@ -1,11 +1,12 @@
 import { rupees } from '../../lib/format.js'
+import { atWidth } from '../../lib/images.js'
 import { useSettings } from '../../context/ShopContext.jsx'
 
 export default function CartLine({ line, onCount, onRemove }) {
   const { maxPerLine } = useSettings()
   return (
     <li className="flex gap-3.5 py-4">
-      <img src={line.image} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
+      <img src={atWidth(line.image, 160)} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">

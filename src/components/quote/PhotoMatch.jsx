@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { atWidth } from '../../lib/images.js'
 import { Link } from 'react-router-dom'
 import { useShop } from '../../context/ShopContext.jsx'
 import { matchPhoto } from '../../api/account.js'
@@ -49,7 +50,7 @@ export default function PhotoMatch({ onBrief, onPhoto }) {
               {picks.map(({ id, reason, product }) => (
                 <li key={id}>
                   <Link to={`/p/${id}`} title={reason} className="flex items-center gap-2 rounded-full border border-wick bg-wax py-1 pl-1 pr-3 text-[13px] hover:border-soot">
-                    <img src={product.image} alt="" className="h-7 w-7 rounded-full object-cover" />
+                    <img src={atWidth(product.image, 160)} alt="" className="h-7 w-7 rounded-full object-cover" />
                     {product.name}
                   </Link>
                 </li>

@@ -126,11 +126,14 @@ export default function Shop() {
           }
         />
       ) : (
+        <>
+        <h2 className="sr-only">{heading ? `${heading.name} candles` : 'All candles'}</h2>
         <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
           {visible.map((p, i) => (
             <ProductCard key={p.id} product={p} priority={i < 4} />
           ))}
         </div>
+        </>
       )}
 
     </div>

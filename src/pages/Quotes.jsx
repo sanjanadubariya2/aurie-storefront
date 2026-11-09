@@ -27,7 +27,7 @@ function SignInFirst({ title }) {
   const { setAuthOpen } = useAuth()
   return (
     <div className="mx-auto max-w-[900px] px-5">
-      <EmptyState title={title} body="Requests are tied to the email you sent them from." action={<Button onClick={() => setAuthOpen(true)}>Sign in</Button>} />
+      <EmptyState level={1} title={title} body="Requests are tied to the email you sent them from." action={<Button onClick={() => setAuthOpen(true)}>Sign in</Button>} />
     </div>
   )
 }
@@ -144,7 +144,7 @@ export function QuoteDetail() {
   if (error) {
     return (
       <div className="mx-auto max-w-[900px] px-5">
-        <EmptyState title="Request not found" body={error} action={<Button as={Link} to="/quotes">All requests</Button>} />
+        <EmptyState level={1} title="Request not found" body={error} action={<Button as={Link} to="/quotes">All requests</Button>} />
       </div>
     )
   }

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../ui/Button.jsx'
+import Picture from '../ui/Picture.jsx'
+import { SIZES } from '../../lib/images.js'
 
 /**
  * The one thing Aurie makes that nobody else on the feed does is a candle whose
@@ -61,18 +63,18 @@ export default function Hero() {
         <div>
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-wick bg-wax/60 px-3 py-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-ember" />
-            <span className="label text-ink">Poured to order in Mumbai</span>
+            <h1 className="label text-ink">Sculptural candles, hand-poured to order in Mumbai</h1>
           </div>
 
           {/* The reveal: wax over the headline, dripping away. */}
           <div className="relative">
-            <h1 className="font-display text-[42px] font-light leading-[0.98] tracking-[-0.02em] text-soot sm:text-[62px] lg:text-[76px]">
+            <p className="font-display text-[42px] font-light leading-[0.98] tracking-[-0.02em] text-soot sm:text-[62px] lg:text-[76px]">
               Some candles
               <br />
               are lit.
               <br />
               <span className="font-semibold italic">Ours are read.</span>
-            </h1>
+            </p>
             {!melted && (
               <div
                 className="wax-curtain pointer-events-none absolute inset-x-0 bottom-0 animate-melt"
@@ -112,12 +114,16 @@ export default function Hero() {
 
         <div className="relative">
           <div className="overflow-hidden rounded-[24px] bg-wax shadow-lift">
-            <img
-              src="/products/cover.jpg"
-              alt="Pillar and tealight candles lit on a table beside dried pampas grass"
+            <Picture
+              name="lit-pillar-and-tealight-candles-with-pampas"
+              widths={[480, 900]}
+              width={900}
+              height={900}
+              sizes={SIZES.hero}
+              loading="eager"
+              fetchPriority="high"
+              alt="Lit pillar and tealight candles on a wooden table beside dried pampas grass"
               className="aspect-[4/5] w-full object-cover"
-              width="900"
-              height="1125"
             />
           </div>
           <figcaption className="mt-3 flex items-center justify-between text-[13px] text-smoke">

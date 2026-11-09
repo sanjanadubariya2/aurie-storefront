@@ -1,4 +1,5 @@
 import { rupees } from '../../lib/format.js'
+import { atWidth } from '../../lib/images.js'
 import { longDate, estimateDelivery } from '../../lib/format.js'
 
 export default function OrderSummary({ lines, subtotal, shipping, giftWrapFee = 0, discount = 0, couponCode, total, neededBy }) {
@@ -10,7 +11,7 @@ export default function OrderSummary({ lines, subtotal, shipping, giftWrapFee = 
         {lines.map((l) => (
           <li key={l.key} className="flex gap-3 py-3">
             <div className="relative shrink-0">
-              <img src={l.image} alt="" className="h-14 w-14 rounded-lg object-cover" />
+              <img src={atWidth(l.image, 160)} alt="" className="h-14 w-14 rounded-lg object-cover" />
               <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-[20px] place-items-center rounded-full bg-soot px-1 text-[11px] tabular-nums text-wax">
                 {l.count}
               </span>

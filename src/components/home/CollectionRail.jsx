@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import ProductCard from '../product/ProductCard.jsx'
+import { SIZES } from '../../lib/images.js'
 import SectionHead from '../ui/SectionHead.jsx'
 import { useReveal } from '../../hooks/useReveal.js'
 
@@ -46,7 +47,7 @@ export default function CollectionRail({ collection, products }) {
       >
         {products.map((p, i) => (
           <div key={p.id} className="h-full w-[70vw] shrink-0 snap-start sm:w-[300px]">
-            <ProductCard product={p} priority={i < 2} />
+            <ProductCard product={p} priority={i < 2} sizes={SIZES.rail} />
           </div>
         ))}
         <Link

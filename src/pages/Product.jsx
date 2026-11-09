@@ -14,6 +14,7 @@ import { useShop } from '../context/ShopContext.jsx'
 import { useCart } from '../context/CartContext.jsx'
 import { useDocumentMeta } from '../hooks/useDocumentMeta.js'
 import { BUSINESS, whatsappLink } from '../content/business.js'
+import { srcSet, productAlt, SIZES } from '../lib/images.js'
 import { rupees, longDate, estimateDelivery } from '../lib/format.js'
 
 export default function Product() {
@@ -78,7 +79,7 @@ export default function Product() {
   if (error) {
     return (
       <Shell>
-        <EmptyState
+        <EmptyState level={1}
           title="This page did not load"
           body={error}
           action={
@@ -110,7 +111,7 @@ export default function Product() {
   if (!product) {
     return (
       <Shell>
-        <EmptyState
+        <EmptyState level={1}
           title="That candle is not in the catalogue"
           body="It may have been retired. Everything we pour right now is in the shop."
           action={
@@ -159,7 +160,10 @@ export default function Product() {
             />
             <img
               src={product.image}
-              alt={product.name}
+              srcSet={srcSet(product.image, [480, 640, 900])}
+              sizes={SIZES.hero}
+              alt={productAlt(product, collection)}
+              fetchpriority="high"
               width="900"
               height="900"
               className="aspect-square w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.03]"

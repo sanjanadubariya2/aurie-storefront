@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { atWidth } from '../lib/images.js'
 import { Link } from 'react-router-dom'
 import Button from '../components/ui/Button.jsx'
 import EmptyState from '../components/ui/EmptyState.jsx'
@@ -72,7 +73,7 @@ export default function Orders() {
   if (!customer) {
     return (
       <div className="mx-auto max-w-[1240px] px-5 lg:px-8">
-        <EmptyState
+        <EmptyState level={1}
           title="Sign in to see your orders"
           body="Your order history is tied to the email you ordered with."
           action={<Button onClick={() => setAuthOpen(true)}>Sign in</Button>}
@@ -130,7 +131,7 @@ export default function Orders() {
                     {order.items.slice(0, 3).map((i) => (
                       <img
                         key={i.key}
-                        src={i.image}
+                        src={atWidth(i.image, 160)}
                         alt=""
                         className="h-12 w-12 rounded-lg border-2 border-wax object-cover"
                       />
@@ -186,7 +187,7 @@ export default function Orders() {
                     <ul className="space-y-2.5">
                       {order.items.map((i) => (
                         <li key={i.key} className="flex items-center gap-3 text-[14px]">
-                          <img src={i.image} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                          <img src={atWidth(i.image, 160)} alt="" className="h-10 w-10 rounded-lg object-cover" />
                           <span className="flex-1 text-ink">
                             {i.name} <span className="text-smoke">· {i.tierLabel} × {i.count}</span>
                           </span>
