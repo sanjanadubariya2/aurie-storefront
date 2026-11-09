@@ -24,7 +24,7 @@ export default function Account() {
   const [params] = useSearchParams()
   const [account, setAccount] = useState(null)
   const [reviewable, setReviewable] = useState([])
-  useDocumentMeta({ title: 'Your account', path: '/account' })
+  useDocumentMeta({ title: 'Your Account', description: 'Your saved addresses, wishlist and reviews at Aurie.', path: '/account', noindex: true })
 
   useEffect(() => {
     if (!customer) return

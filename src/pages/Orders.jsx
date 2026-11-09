@@ -15,7 +15,7 @@ import { rupees, shortDate, longDate, paymentLabel } from '../lib/format.js'
 
 export default function Orders() {
   const { customer, setAuthOpen } = useAuth()
-  useDocumentMeta({ title: 'Your orders', path: '/orders' })
+  useDocumentMeta({ title: 'Your Orders', description: 'Track your Aurie orders from pouring to delivery.', path: '/orders', noindex: true })
   const [orders, setOrders] = useState(null)
   const [error, setError] = useState('')
   const [openId, setOpenId] = useState(null)

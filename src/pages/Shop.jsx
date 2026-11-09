@@ -20,8 +20,10 @@ export default function Shop() {
   const active = params.get('c') || 'all'
   const heading = collections.find((c) => c.id === active)
   useDocumentMeta({
-    title: heading ? heading.name : 'Shop all candles',
-    description: heading?.note,
+    title: heading ? `${heading.name} Candles` : 'Shop All Candles',
+    description: heading
+      ? `${heading.tagline}. ${heading.note} Hand-poured to order in Mumbai and delivered across India.`
+      : 'Browse every Aurie candle: festive mithai, flower, coffee, beach and jar candles plus custom Secret Glow messages. Prices from ₹59, made to order.',
     path: active === 'all' ? '/shop' : `/shop?c=${active}`,
   })
 

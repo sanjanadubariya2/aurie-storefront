@@ -26,8 +26,9 @@ export default function QuoteRequest() {
   const { customer, requireAuth } = useAuth()
   const { toast } = useToast()
   useDocumentMeta({
-    title: 'Request a custom candle',
-    description: 'Secret Glow messages, hampers and candles made from your reference photo. Tell us what you want and we reply with a price.',
+    title: 'Custom Candles & Secret Message Gifts',
+    description:
+      'Order a custom candle: hidden Secret Glow messages, wedding favours, hampers or a candle made from your reference photo. Tell us what you want and we reply with a price.',
     path: '/quote',
   })
 

@@ -17,7 +17,7 @@ export default function Invoice() {
   const { business } = useSettings()
   const [order, setOrder] = useState(null)
   const [error, setError] = useState('')
-  useDocumentMeta({ title: `Invoice ${ref}`, path: `/orders/${ref}/invoice` })
+  useDocumentMeta({ title: `Invoice ${ref}`, description: `Invoice for Aurie order ${ref}.`, path: `/orders/${ref}/invoice`, noindex: true })
 
   useEffect(() => {
     if (!customer) return

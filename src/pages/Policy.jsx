@@ -9,7 +9,12 @@ export default function Policy() {
   const { page } = useParams()
   const policy = POLICIES[page]
   const settings = useSettings()
-  useDocumentMeta({ title: policy?.title, description: policy?.summary, path: `/policies/${page}` })
+  useDocumentMeta({
+    title: policy?.title || 'Policy not found',
+    description: policy ? `${policy.summary} Aurie's ${policy.title.toLowerCase()} for candle orders across India.` : '',
+    path: `/policies/${page}`,
+    noindex: !policy,
+  })
   if (!policy) return <NotFound />
 
   return (

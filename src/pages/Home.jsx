@@ -15,7 +15,11 @@ const RAIL_ORDER = ['festive', 'bloom', 'brew', 'whims', 'tide', 'jars']
 
 export default function Home() {
   const { products, collections, loading, error, reload } = useShop()
-  useDocumentMeta({ path: '/' })
+  useDocumentMeta({
+    description:
+      'Hand-poured sculptural candles from Mumbai: festive mithai, blooms, coffee and secret-message reveal candles, made to order and delivered across India.',
+    path: '/',
+  })
 
   const rails = RAIL_ORDER.map((id) => ({
     collection: collections.find((c) => c.id === id),

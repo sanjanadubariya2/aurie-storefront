@@ -63,11 +63,15 @@ export default function Product() {
     }
   }, [product, collection])
 
+  const fromPrice = product?.tiers?.length ? Math.min(...product.tiers.map((t) => t.price)) : null
   useDocumentMeta({
-    title: product?.name,
-    description: product?.blurb,
+    title: product ? `${product.name}${collection ? ` | ${collection.name} Candle` : ''}` : loading ? 'Loading' : 'Candle not found',
+    description: product
+      ? `${product.blurb}${product.scent ? ` Scent: ${product.scent}.` : ''} ${fromPrice ? `From ₹${fromPrice}, ` : 'Priced on request, '}hand-poured to order in Mumbai.`
+      : 'This candle is not in the Aurie catalogue any more.',
     image: product?.image,
     path: `/p/${slug}`,
+    noindex: !product && !loading,
     jsonLd,
   })
 

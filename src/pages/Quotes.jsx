@@ -36,7 +36,7 @@ export function QuoteList() {
   const { customer } = useAuth()
   const [quotes, setQuotes] = useState(null)
   const [error, setError] = useState('')
-  useDocumentMeta({ title: 'Your custom requests', path: '/quotes' })
+  useDocumentMeta({ title: 'Your Custom Requests', description: 'Your custom candle requests and their prices.', path: '/quotes', noindex: true })
 
   useEffect(() => {
     if (!customer) return
@@ -119,7 +119,12 @@ export function QuoteDetail() {
   const [errors, setErrors] = useState({})
   const [paying, setPaying] = useState(false)
   const [order, setOrder] = useState(null)
-  useDocumentMeta({ title: quote ? `Request ${quote.number}` : 'Your request', path: `/quotes/${id}` })
+  useDocumentMeta({
+    title: quote ? `Request ${quote.number}` : 'Your Request',
+    description: 'Details and price for your custom Aurie candle request.',
+    path: `/quotes/${id}`,
+    noindex: true,
+  })
 
   useEffect(() => {
     if (!customer) return

@@ -1,9 +1,8 @@
 import { useEffect } from 'react'
 import { BUSINESS } from '../content/business.js'
 
-const DEFAULT_TITLE = 'Aurie — candles made to your reference'
-const DEFAULT_DESCRIPTION =
-  'Small-batch sculptural candles from Mumbai. Festive mithai, blooms, brews and secret-message reveal candles. Made to order.'
+const HOME_TITLE = 'Aurie | Sculptural Candles Made to Order in Mumbai'
+const DEFAULT_IMAGE = `${BUSINESS.siteUrl}/products/cover.jpg`
 
 function setMeta(attr, key, content) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`)
@@ -26,24 +25,45 @@ function setCanonical(href) {
 }
 
 /**
- * Sets the tab title, description, canonical URL, Open Graph tags and optional
- * JSON-LD for the current page. Search engines that run JavaScript (Google)
- * read these; link-preview bots that do not (WhatsApp, Instagram) get the same
- * tags from the /api/share function — see vercel.json.
+ * Per-route head tags. Every page calls this with its OWN title, description
+ * and path; nothing falls back to the homepage's copy (index.html holds the
+ * homepage defaults only). On every route it rewrites the tab title, meta
+ * description, robots, canonical URL, Open Graph and Twitter tags, and resets
+ * the share image so a product's photo never sticks to the next page.
+ *
+ * @param {object} o
+ * @param {string} [o.title]       page name; "· Aurie" is appended. Omit only on the homepage.
+ * @param {string} o.description   one or two sentences unique to this page
+ * @param {string} [o.path]        canonical path, e.g. "/p/laddoo" (defaults to the current path)
+ * @param {string} [o.image]       absolute image URL for link previews
+ * @param {boolean} [o.noindex]    private or utility pages (account, checkout, 404…)
+ * @param {object} [o.jsonLd]      schema.org data for this page
+ *
+ * Search engines that run JavaScript (Google) read these. Link-preview bots
+ * that do not (WhatsApp, Instagram) get product tags from api/share.js.
  */
-export function useDocumentMeta({ title, description, image, path, jsonLd } = {}) {
+export function useDocumentMeta({ title, description, image, path, noindex = false, jsonLd } = {}) {
   useEffect(() => {
-    const fullTitle = title ? `${title} · Aurie` : DEFAULT_TITLE
-    const desc = description || DEFAULT_DESCRIPTION
+    const fullTitle = title ? `${title} · Aurie` : HOME_TITLE
+    const desc = description || ''
     const url = `${BUSINESS.siteUrl}${path ?? window.location.pathname}`
+    const img = image ? image.replace('/f_auto,', '/f_jpg,') : DEFAULT_IMAGE
+
     document.title = fullTitle
     setMeta('name', 'description', desc)
+    setMeta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow')
+    setCanonical(url)
+
     setMeta('property', 'og:title', fullTitle)
     setMeta('property', 'og:description', desc)
     setMeta('property', 'og:url', url)
     setMeta('property', 'og:type', jsonLd?.['@type'] === 'Product' ? 'product' : 'website')
-    if (image) setMeta('property', 'og:image', image)
-    setCanonical(url)
+    setMeta('property', 'og:image', img)
+    setMeta('property', 'og:image:alt', title || 'Aurie candles')
+
+    setMeta('name', 'twitter:title', fullTitle)
+    setMeta('name', 'twitter:description', desc)
+    setMeta('name', 'twitter:image', img)
 
     let script
     if (jsonLd) {
@@ -53,5 +73,5 @@ export function useDocumentMeta({ title, description, image, path, jsonLd } = {}
       document.head.appendChild(script)
     }
     return () => script?.remove()
-  }, [title, description, image, path, jsonLd])
+  }, [title, description, image, path, noindex, jsonLd])
 }

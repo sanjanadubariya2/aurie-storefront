@@ -1,16 +1,48 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <!--
+      Homepage defaults. Every route replaces title, description, canonical,
+      robots and the Open Graph / Twitter tags at runtime via
+      src/hooks/useDocumentMeta.js, so no page reuses these. Link-preview bots
+      that do not run JavaScript get per-product tags from api/share.js.
+    -->
+    <title>Aurie | Sculptural Candles Made to Order in Mumbai</title>
+    <meta
+      name="description"
+      content="Hand-poured sculptural candles from Mumbai: festive mithai, blooms, coffee and secret-message reveal candles, made to order and delivered across India."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://www.aurie.website/" />
+
+    <meta property="og:site_name" content="Aurie" />
+    <meta property="og:title" content="Aurie | Sculptural Candles Made to Order in Mumbai" />
+    <meta
+      property="og:description"
+      content="Hand-poured sculptural candles from Mumbai: festive mithai, blooms, coffee and secret-message reveal candles, made to order."
+    />
+    <meta property="og:url" content="https://www.aurie.website/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:image" content="https://www.aurie.website/products/cover.jpg" />
+    <meta property="og:image:alt" content="Pillar and tealight candles lit on a table beside dried pampas grass" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Aurie | Sculptural Candles Made to Order in Mumbai" />
+    <meta
+      name="twitter:description"
+      content="Hand-poured sculptural candles from Mumbai, made to order and delivered across India."
+    />
+    <meta name="twitter:image" content="https://www.aurie.website/products/cover.jpg" />
+
     <meta name="theme-color" content="#E5E2DB" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icon.svg" />
-    <meta property="og:site_name" content="Aurie" />
-    <meta property="og:image" content="https://www.aurie.website/products/cover.jpg" />
-    <title>Aurie — candles made to your reference</title>
-    <meta name="description" content="Small-batch sculptural candles from Mumbai. Festive mithai, blooms, brews and secret-message reveal candles. Made to order." />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />

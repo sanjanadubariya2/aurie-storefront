@@ -46,7 +46,7 @@ export default function Checkout() {
   const navigate = useNavigate()
   const payByUpi = useRazorpayCheckout()
   const { products, settings } = useShop()
-  useDocumentMeta({ title: 'Checkout', path: '/checkout' })
+  useDocumentMeta({ title: 'Checkout', description: 'Delivery details and payment for your Aurie order.', path: '/checkout', noindex: true })
 
   const [step, setStep] = useState(0)
   const [address, setAddress] = useState(() => ({ ...blank, ...read(ADDRESS_KEY, {}) }))
