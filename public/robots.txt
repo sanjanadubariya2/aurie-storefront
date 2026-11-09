@@ -2,5 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /checkout
 Disallow: /orders
+Disallow: /account
+Disallow: /quotes
 
 Sitemap: https://www.aurie.website/sitemap.xml
